@@ -486,8 +486,6 @@ KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::
 								sh = possible_filenames[i].substr(0, k);
 							}
 					}
-					if (sh == L"")
-						sh = possible_filenames[i].substr(0, k);
 				}
 			}
 		}
@@ -515,6 +513,7 @@ KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::
 		}
 		if (fs::is_directory(full_path / sh))
 		{
+			full_path = full_path / sh;
 			full_path += (fs::path::preferred_separator);
 		}
 		else
