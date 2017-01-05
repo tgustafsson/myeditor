@@ -337,9 +337,16 @@ void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View
 
 void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch)
 {
+  if(wch == '\n')
+    {
+      
+    }
+  else
+    {
 	control.change_cursor(row, col - 1, Control::REAL);
 	control.change_view(view_row, view_col, model->number_of_lines());
 	my_insert(model, view, control, wch);
+    }
 }
 
 KeyCord::command_return_t my_empty(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control)
@@ -422,8 +429,19 @@ KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_pt
 	{
 		wchar_t undo_char = s->at(start);
 		auto undo = bind(my_delete_character_undo, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6, placeholders::_7, undo_char);
-        s->erase(start, 1);
+		s->erase(start, 1);
 		return make_tuple(undo, true);
+	}
+	else if (start == s->length())
+	{
+	        auto next = control.get_row(Control::REAL, 1);
+		auto l = next->length();
+		s->append(next->to_str());
+		model->erase(control.get_row_no(Control::REAL) + 1);
+		control.wrap_content();
+		auto undo = bind(my_delete_character_undo, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6, placeholders::_7, '\n');
+		return make_tuple(undo, true);
+		//control.change(-1, Control::REAL, l - start, Control::REAL, model, view, control);
 	}
 	return make_tuple(&my_empty_undo, false);
 }

@@ -16,10 +16,24 @@
 #include "DummyView.h"
 #include "Cords.h"
 
-using namespace std;
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
 
+using namespace std;
+namespace po = boost::program_options;
 int main(int argc, char *argv[])
 {
+  po::options_description desc;
+  desc.add_options()
+    ("if", po::value<string>(), "input file name");
+  po::positional_options_description pd;
+  pd.add("if", 1);
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);    
+  
    //vector<KeyCord> file_select_cords;
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_F }, &my_right));
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_A }, &my_begin_line));
