@@ -51,8 +51,6 @@ int main(int argc, char *argv[]) {
    //std::string narrow = converter.to_bytes(wide_utf16_source_string);
    std::wstring input_filename = converter.from_bytes(_filename);
 
-   auto input_filename_path = fs::canonical(fs::path(input_filename));
-
    //vector<KeyCord> file_select_cords;
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_F }, &my_right));
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_A }, &my_begin_line));
