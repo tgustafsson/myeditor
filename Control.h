@@ -12,80 +12,81 @@ class Mode;
 class Control
 {
 protected:
-    std::shared_ptr<Model> m_model;
-    std::shared_ptr<View> m_view;
-	std::vector<std::shared_ptr<Mode>> m_modes;
-	bool m_execute;
-	CommandHistory m_commandhistory;
-	intptr_t m_real_row;
-	intptr_t m_real_col;
-	intptr_t m_view_row;
-	intptr_t m_view_col;
+   std::shared_ptr<Model> m_model;
+   std::shared_ptr<View> m_view;
+   std::vector<std::shared_ptr<Mode>> m_modes;
+   bool m_execute;
+   CommandHistory m_commandhistory;
+   intptr_t m_real_row;
+   intptr_t m_real_col;
+   intptr_t m_view_row;
+   intptr_t m_view_col;
 public:
-    enum keys
-    {
-	    CTRL_X,
-	    CTRL_C,
-	    CTRL_F,
-	    CTRL_A,
-	    CTRL_E,
-	    CTRL_S,
-	    CTRL_V,
-	    CTRL_N,
-	    CTRL_P,
-	    CTRL_B,
-	    CTRL_D,
-	    CTRL_G,
-	    CTRL_K,
-	    CTRL_Y,
-	    CTRL_HALF,
-	    CTRL_SPACE,
-	    CTRL_UNDERSCORE,
-	    CTRL_W,
-	    LEFT,
-	    UP,
-	    RIGHT,
-	    DOWN,
-	    ENTER,
-	    TAB,
-	    BACKSPACE,
-	    HOME,
-	    END,
-	    ALTF,
-	    ALTB,
-	    ALTW,
-	    ALTV,
-	    UNDEFINED
-    };
+   enum keys
+   {
+      CTRL_X,
+      CTRL_C,
+      CTRL_F,
+      CTRL_A,
+      CTRL_E,
+      CTRL_S,
+      CTRL_V,
+      CTRL_N,
+      CTRL_P,
+      CTRL_B,
+      CTRL_D,
+      CTRL_G,
+      CTRL_K,
+      CTRL_Y,
+      CTRL_HALF,
+      CTRL_SPACE,
+      CTRL_UNDERSCORE,
+      CTRL_W,
+      LEFT,
+      UP,
+      RIGHT,
+      DOWN,
+      ENTER,
+      TAB,
+      BACKSPACE,
+      HOME,
+      END,
+      ALTF,
+      ALTB,
+      ALTW,
+      ALTV,
+      ALTX,
+      UNDEFINED
+   };
 
-	enum change_t
-	{
-		VISUAL,
-		REAL
-	};
+   enum change_t
+   {
+      VISUAL,
+      REAL
+   };
+   
+   Control(std::shared_ptr<Model> m, std::shared_ptr<View> v);
+   virtual ~Control();
+   void add_mode(std::shared_ptr<Mode> mode);
+   void assign_mode_based_on_extension(std::shared_ptr<Control> control);
+   void exit();
+   void set_execute();
+   std::vector<std::shared_ptr<Mode>>& get_modes();
+   virtual std::tuple<keys, int> get_key() const = 0;
+   virtual void loop() = 0;
+   CommandHistory& get_command_history();
 
-    Control(std::shared_ptr<Model> m, std::shared_ptr<View> v);
-    virtual ~Control();
-    void add_mode(std::shared_ptr<Mode> mode);
-    void assign_mode_based_on_extension(std::shared_ptr<Control> control);
-    void exit();
-    void set_execute();
-    std::vector<std::shared_ptr<Mode>>& get_modes();
-    virtual std::tuple<keys, int> get_key() const = 0;
-    virtual void loop() = 0;
-    CommandHistory& get_command_history();
-    
-    virtual void wrap_content();
-    virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-    virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
-    virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines);
-    virtual void get_cursor_pos(intptr_t& row, intptr_t& col, change_t t);
-    virtual void get_view(intptr_t& row, intptr_t& col);
-    virtual std::shared_ptr<AttributedString> get_row(change_t t, intptr_t delta);
-    virtual size_t get_row_no(change_t t);
-    virtual size_t get_col(change_t t);
-    virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, size_t start_row, size_t end_row);
-    virtual void convert_to(Control::change_t from, size_t row, size_t col, Control::change_t to, intptr_t &_row, intptr_t &_col);
+   virtual void wrap_content();
+   virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
+   virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
+   virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines);
+   virtual void get_cursor_pos(intptr_t& row, intptr_t& col, change_t t);
+   virtual void get_view(intptr_t& row, intptr_t& col);
+   virtual std::shared_ptr<AttributedString> get_row(change_t t, intptr_t delta);
+   virtual size_t get_row_no(change_t t);
+   virtual size_t get_col(change_t t);
+   virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, size_t start_row, size_t end_row);
+   virtual void convert_to(Control::change_t from, size_t row, size_t col, Control::change_t to, intptr_t& _row, intptr_t& _col);
 };
 
 extern size_t _number_key_presses;
@@ -128,5 +129,7 @@ void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, 
 void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col);
 void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch);
 void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, std::vector<std::wstring> lines, intptr_t r, intptr_t c);
+
+KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
 
 #endif //CONTROL_H

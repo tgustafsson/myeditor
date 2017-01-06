@@ -15,6 +15,7 @@
 #include "SoftwrapControl.h"
 #include "DummyView.h"
 #include "Cords.h"
+#include "CommandLine.h"
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
@@ -31,26 +32,27 @@
 using namespace std;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
-int main(int argc, char *argv[])
-{
-  po::options_description desc;
-  desc.add_options()
-    ("if", po::value<string>(), "input file name");
-  po::positional_options_description pd;
-  pd.add("if", 1);
-  po::variables_map vm;
+int main(int argc, char *argv[]) {
+   po::options_description desc;
+   desc.add_options()
+      ("if", po::value<string>(), "input file name");
+   po::positional_options_description pd;
+   pd.add("if", 1); 
+   po::variables_map vm;
 
-  po::store(po::command_line_parser(argc, argv).
-	    options(desc).positional(pd).run(), vm);
-  po::notify(vm);
+   po::store(po::command_line_parser(argc, argv).
+             options(desc).positional(pd).run(), vm);
+   po::notify(vm);
 
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-  auto _filename = vm["if"].as<string>();
-  //std::string narrow = converter.to_bytes(wide_utf16_source_string);
-  std::wstring input_filename = converter.from_bytes(_filename);
+   std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+   string _filename = ""; 
+   if ( vm.count("if") > 0)
+      _filename = vm["if"].as<string>();
+   //std::string narrow = converter.to_bytes(wide_utf16_source_string);
+   std::wstring input_filename = converter.from_bytes(_filename);
 
-  auto input_filename_path = fs::canonical(fs::path(input_filename));
-  
+   auto input_filename_path = fs::canonical(fs::path(input_filename));
+
    //vector<KeyCord> file_select_cords;
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_F }, &my_right));
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_A }, &my_begin_line));
@@ -88,7 +90,20 @@ int main(int argc, char *argv[])
    shared_ptr<Mode> incremental_search_mode = make_shared<FundamentalMode>(_incremental_search_cords, incremental_search_control, incremental_search_insert);
    incremental_search_control->add_mode(incremental_search_mode);
 
-   shared_ptr<Model> m = make_shared<Model>(input_filename); 
+   _debug << "command_line" << "\n";
+   _command_line_cords.push_back(KeyCord({ Control::keys::LEFT }, &my_empty));
+   _command_line_cords.push_back(KeyCord({ Control::keys::RIGHT }, &my_empty));
+   _command_line_cords.push_back(KeyCord({ Control::keys::DOWN }, &my_empty));
+   _command_line_cords.push_back(KeyCord({ Control::keys::UP }, &my_empty)); 
+   shared_ptr<Model> command_line_model = make_shared<Model>();
+   shared_ptr<CursesView> command_line_view = make_shared<CursesView>(-2, 3, 1, -2); 
+   shared_ptr<CursesControl> command_line_control = make_shared<CursesControl>(command_line_model, command_line_view);
+   CommandLine cl;
+   auto command_line_insert = bind(&CommandLine::my_command_line_insert, ref(cl), placeholders::_1, placeholders::_2, placeholders::_3, command_line_control, command_line_model); 
+   shared_ptr<Mode> command_line_mode = make_shared<FundamentalMode>(_command_line_cords, command_line_control, command_line_insert);
+   command_line_control->add_mode(command_line_mode);
+   _debug << "command_line setup\n";
+   shared_ptr<Model> m = make_shared<Model>(input_filename);
    //vector<KeyCord> cords;
    _main_cords.push_back(KeyCord({ Control::keys::LEFT }, &my_empty));
    _main_cords.push_back(KeyCord({ Control::keys::RIGHT }, &my_empty));
@@ -125,8 +140,9 @@ int main(int argc, char *argv[])
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_X, 'e' }, &my_execute_recording));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_V }, &my_page_down));
    _main_cords.push_back(KeyCord({ Control::keys::ALTV }, &my_page_up));
+   _main_cords.push_back(KeyCord({ Control::keys::ALTX}, &my_command_line_insert));
    shared_ptr<CursesView> main_view = make_shared<CursesView>(-2, -4, 1, 1);
-   
+
    shared_ptr<CursesControl> main_control = make_shared<SoftwrapControl>(m, main_view);
    shared_ptr<Mode> latex_mode = make_shared<LatexMode>(_main_cords, main_control, &my_insert);
    shared_ptr<Mode> ism_mode = make_shared<IncrementalSearchMode>(_main_cords, main_control, &my_insert);
@@ -142,6 +158,7 @@ int main(int argc, char *argv[])
    main_view.reset(new DummyView);
    file_select_view.reset(new DummyView);
    incremental_search_view.reset(new DummyView);
+   command_line_view.reset(new DummyView);
    return (0);
 }
 

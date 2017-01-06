@@ -914,3 +914,8 @@ KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared
 	return make_tuple(&my_position_undo, true);
 }
 
+KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) 
+{
+   return make_tuple(&my_empty_undo, false);
+}
+
