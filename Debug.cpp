@@ -1,6 +1,11 @@
 #include "Debug.h"
 #include <ios>
 #include <iostream>
+
+#include <locale>
+#include <codecvt>
+#include <string>
+
 Debug _debug;
 
 using namespace std;
@@ -51,12 +56,24 @@ Debug& operator<<(Debug& lhs, size_t rhs)
 	return lhs;
 }
 
-Debug& operator<<(Debug& lhs, const wstring& s)
+Debug& operator<<(Debug& lhs, const string& s)
 {
+  lhs.m_fs << s;
 	for (auto a : s)
 	{
-		lhs.m_fs << a;
+	  lhs.m_fs << static_cast<char>(a);
 	}
+	lhs.m_fs.flush();
+	return lhs;
+}
+
+Debug& operator<<(Debug& lhs, const wstring& s)
+{
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+  std::string narrow = converter.to_bytes(s);
+
+  lhs.m_fs << narrow;
+
 	lhs.m_fs.flush();
 	return lhs;
 }

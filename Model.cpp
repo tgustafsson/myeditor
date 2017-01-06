@@ -188,6 +188,8 @@ std::wstring Model::get_filename() const
 std::wstring Model::get_extension() const
 {
 	namespace fs = boost::filesystem;
-	boost::filesystem::path p = fs::canonical(fs::path(m_path));
+	fs::path p = fs::canonical(fs::path(m_path));
+	_debug << "get_extension: " << m_path << "\n";
+	_debug << "get_extension: " << p.extension().string() << "\n";
 	return p.extension().wstring(); 
 }

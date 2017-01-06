@@ -21,8 +21,16 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include <locale>
+#include <codecvt>
+#include <string>
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
 using namespace std;
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 int main(int argc, char *argv[])
 {
   po::options_description desc;
@@ -31,8 +39,17 @@ int main(int argc, char *argv[])
   po::positional_options_description pd;
   pd.add("if", 1);
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);    
+
+  po::store(po::command_line_parser(argc, argv).
+	    options(desc).positional(pd).run(), vm);
+  po::notify(vm);
+
+  std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+  auto _filename = vm["if"].as<string>();
+  //std::string narrow = converter.to_bytes(wide_utf16_source_string);
+  std::wstring input_filename = converter.from_bytes(_filename);
+
+  auto input_filename_path = fs::canonical(fs::path(input_filename));
   
    //vector<KeyCord> file_select_cords;
    _file_select_cords.push_back(KeyCord({ Control::keys::CTRL_F }, &my_right));
@@ -71,8 +88,7 @@ int main(int argc, char *argv[])
    shared_ptr<Mode> incremental_search_mode = make_shared<FundamentalMode>(_incremental_search_cords, incremental_search_control, incremental_search_insert);
    incremental_search_control->add_mode(incremental_search_mode);
 
-   //shared_ptr<Model> m = make_shared<Model>(L"/cygdrive/c/avenir_docs/SAGA/adoption_case_study1/adoption_case_study.tex"); 
-   shared_ptr<Model> m = make_shared<Model>(L""); 
+   shared_ptr<Model> m = make_shared<Model>(input_filename); 
    //vector<KeyCord> cords;
    _main_cords.push_back(KeyCord({ Control::keys::LEFT }, &my_empty));
    _main_cords.push_back(KeyCord({ Control::keys::RIGHT }, &my_empty));
@@ -110,6 +126,7 @@ int main(int argc, char *argv[])
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_V }, &my_page_down));
    _main_cords.push_back(KeyCord({ Control::keys::ALTV }, &my_page_up));
    shared_ptr<CursesView> main_view = make_shared<CursesView>(-2, -4, 1, 1);
+   
    shared_ptr<CursesControl> main_control = make_shared<SoftwrapControl>(m, main_view);
    shared_ptr<Mode> latex_mode = make_shared<LatexMode>(_main_cords, main_control, &my_insert);
    shared_ptr<Mode> ism_mode = make_shared<IncrementalSearchMode>(_main_cords, main_control, &my_insert);

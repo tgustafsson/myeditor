@@ -16,6 +16,7 @@ public:
     friend Debug& operator<<(Debug& lhs, intptr_t rhs);
     friend Debug& operator<<(Debug& lhs, char rhs);
     friend Debug& operator<<(Debug& lhs, size_t rhs);
+    friend Debug& operator<<(Debug& lhs, const std::string& s);
     friend Debug& operator<<(Debug& lhs, const std::wstring& s);
 };
 

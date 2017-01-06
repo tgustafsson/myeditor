@@ -65,15 +65,16 @@ void Control::wrap_content()
 void Control::assign_mode_based_on_extension(shared_ptr<Control> control)
 {
 	auto extension = m_model->get_extension();
+	_debug << "assign_mode_based_on_extension: " << extension << "\n";
 	if (m_modes.size() == 0)
 	{
 		m_modes.resize(1);
 	}
-	if (extension == L"cpp")
+	if (extension == L".cpp")
 	{
 		m_modes[0] = make_shared<CppMode>(_main_cords, control, &my_insert);
 	}
-	else if (extension == L"tex")
+	else if (extension == L".tex")
 	{
 		m_modes[0] = make_shared<LatexMode>(_main_cords, control, &my_insert); 
 	}
