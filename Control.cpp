@@ -70,7 +70,7 @@ void Control::assign_mode_based_on_extension(shared_ptr<Control> control)
 	{
 		m_modes.resize(1);
 	}
-	if (extension == L".cpp")
+	if (extension == L".cpp" || extension == L".cc" || extension == L".h")
 	{
 		m_modes[0] = make_shared<CppMode>(_main_cords, control, &my_insert);
 	}
@@ -913,3 +913,4 @@ KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared
 	control.change(height, Control::VISUAL, 0, Control::VISUAL, model, view, control);
 	return make_tuple(&my_position_undo, true);
 }
+
