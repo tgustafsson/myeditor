@@ -121,7 +121,14 @@ void CursesView::update(const std::vector<shared_ptr<AttributedString>> rows, sh
 		{
 			auto t = (*line)[i];
 			attron(A_BOLD | COLOR_PAIR(m_color_to_pair[get<1>(t)]));
-			mvaddch(y, x, get<0>(t));
+                        if ( get<0>(t) == '\r')
+                        {
+                           mvaddch(y, x, ' '); 
+                        }
+                        else
+                        {
+                           mvaddch(y, x, get<0>(t)); 
+                        }
 			attroff(A_BOLD | COLOR_PAIR(m_color_to_pair[get<1>(t)]));
 			x++;
 		}

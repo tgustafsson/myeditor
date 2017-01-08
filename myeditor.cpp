@@ -88,7 +88,6 @@ int main(int argc, char *argv[]) {
    shared_ptr<Mode> incremental_search_mode = make_shared<FundamentalMode>(_incremental_search_cords, incremental_search_control, incremental_search_insert);
    incremental_search_control->add_mode(incremental_search_mode);
 
-   _debug << "command_line" << "\n";
    _command_line_cords.push_back(KeyCord({ Control::keys::LEFT }, &my_empty));
    _command_line_cords.push_back(KeyCord({ Control::keys::RIGHT }, &my_empty));
    _command_line_cords.push_back(KeyCord({ Control::keys::DOWN }, &my_empty));
@@ -100,7 +99,6 @@ int main(int argc, char *argv[]) {
    auto command_line_insert = bind(&CommandLine::my_command_line_insert, ref(cl), placeholders::_1, placeholders::_2, placeholders::_3, command_line_control, command_line_model); 
    shared_ptr<Mode> command_line_mode = make_shared<FundamentalMode>(_command_line_cords, command_line_control, command_line_insert);
    command_line_control->add_mode(command_line_mode);
-   _debug << "command_line setup\n";
    shared_ptr<Model> m = make_shared<Model>(input_filename);
    //vector<KeyCord> cords;
    _main_cords.push_back(KeyCord({ Control::keys::LEFT }, &my_empty));

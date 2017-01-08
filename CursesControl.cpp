@@ -88,6 +88,7 @@ void CursesControl::loop()
 			m_view->update(_rows, m_modes[2], m_view_col);
 		}
 		intptr_t row, col;
+                intptr_t row_copy = m_real_row, col_copy = m_real_col, view_row_copy = m_view_row, view_col_copy = m_view_col;
 		get_cursor_pos(row, col, Control::VISUAL);
 		m_view->change_visual_cursor(row, col);
 		m_view->refresh();
@@ -97,7 +98,7 @@ void CursesControl::loop()
 		wrap_content();
 		auto f = get<0>(undo);
 		if (get<1>(undo))
-			m_commandhistory.add_command(hist, bind(f, m_model, m_view, ref(*this), m_real_row, m_real_col, m_view_row, m_view_col));
+			m_commandhistory.add_command(hist, bind(f, m_model, m_view, ref(*this), row_copy, col_copy, view_row_copy, view_col_copy));
 		if (_macro.is_recording())
 			_macro.add_function(hist);
 	}
