@@ -116,7 +116,6 @@ void CursesView::update(const std::vector<shared_ptr<AttributedString>> rows, sh
 		attron(A_BOLD | COLOR_PAIR(1));
 		mvaddch(y, x - 1, L'=');
 		attroff(A_BOLD | COLOR_PAIR(1));
-		//auto& s = line->to_str();
 		for (size_t i = view_col; i < line->length() && i <= view_col + m_width; i++)
 		{
 			auto t = (*line)[i];
