@@ -22,29 +22,29 @@ vector<std::shared_ptr<AttributedString>> SelectionMode::syntax_highlight(std::v
 			Selection::selection_t second;
 			if (selection->has_end())
 			{
-				if (selection->get_start(Control::change_t::REAL, *m_control) <= selection->get_end(Control::change_t::REAL, *m_control)) 
+				if (selection->get_start(Control::change_t::REAL, m_control) <= selection->get_end(Control::change_t::REAL, m_control)) 
 				{
-					first = selection->get_start(Control::change_t::VISUAL, *m_control);
-					second = selection->get_end(Control::change_t::VISUAL, *m_control);
+					first = selection->get_start(Control::change_t::VISUAL, m_control);
+					second = selection->get_end(Control::change_t::VISUAL, m_control);
 				}
 				else
 				{
-					first = selection->get_end(Control::change_t::VISUAL, *m_control);
-					second = selection->get_start(Control::change_t::VISUAL, *m_control);
+					first = selection->get_end(Control::change_t::VISUAL, m_control);
+					second = selection->get_start(Control::change_t::VISUAL, m_control);
 				}
 			}
 			else
 			{
 				Selection::selection_t cursor = make_tuple(m_control->get_row_no(Control::VISUAL), m_control->get_col(Control::VISUAL), Control::change_t::VISUAL); 
-				if (selection->get_start(Control::change_t::VISUAL, *m_control) <= cursor)
+				if (selection->get_start(Control::change_t::VISUAL, m_control) <= cursor)
 				{
-					first = selection->get_start(Control::change_t::VISUAL, *m_control);
+					first = selection->get_start(Control::change_t::VISUAL, m_control);
 					second = cursor;
 				}
 				else
 				{
 					first = cursor;
-					second = selection->get_start(Control::change_t::VISUAL, *m_control);
+					second = selection->get_start(Control::change_t::VISUAL, m_control);
 				}
 			}
 			size_t i = 0;

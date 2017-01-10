@@ -8,7 +8,7 @@ void DummyView::getmaxxy(intptr_t& rows, intptr_t& cols)
 	cols = 0;
 }
 
-void DummyView::update(vector<shared_ptr<AttributedString>>, shared_ptr<Mode>, size_t a)
+void DummyView::update(vector<shared_ptr<AttributedString>>, size_t a)
 {
 }
 

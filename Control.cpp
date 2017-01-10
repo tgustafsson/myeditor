@@ -15,6 +15,7 @@
 #include "CppMode.h"
 #include "LatexMode.h"
 #include "FundamentalMode.h"
+#include "Utilities.h"
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <boost/filesystem/operations.hpp>
@@ -38,7 +39,7 @@ size_t Control::get_col(Control::change_t t) {
    else if ( t == Control::VISUAL ) return m_real_col + m_view_col;
 }
 
-Control::Control(shared_ptr<Model> m, shared_ptr<View> v) : m_model(m), m_view(v), m_execute(true) {
+Control::Control(shared_ptr<Model> m) : m_model(m), m_execute(true) {
    m_real_row = 0;
    m_real_col = 0;
    m_view_row = 0;
@@ -54,6 +55,7 @@ void Control::wrap_content() {
 
 void Control::assign_mode_based_on_extension(shared_ptr<Control> control) {
    auto extension = m_model->get_extension();
+   _debug << "assign_mode_based_on_extension: " << extension << "\n";
    if ( m_modes.size() == 0 )
    {
       m_modes.resize(1);
@@ -66,7 +68,7 @@ void Control::assign_mode_based_on_extension(shared_ptr<Control> control) {
       m_modes[0] = make_shared<LatexMode>(_main_cords, control, &my_insert);
    } else
    {
-      m_modes[0] == make_shared<FundamentalMode>(_main_cords, control, &my_insert);
+      m_modes[0] = make_shared<FundamentalMode>(_main_cords, control, &my_insert);
    }
 }
 
@@ -80,6 +82,10 @@ void Control::exit() {
 
 void Control::set_execute() {
    m_execute = true;
+}
+
+bool Control::get_execute() {
+   return m_execute;
 }
 
 CommandHistory& Control::get_command_history() {
@@ -135,7 +141,7 @@ vector<shared_ptr<AttributedString>> Control::rows(change_t t, size_t start_row,
    return m_model->rows(start_row, end_row);
 }
 
-void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t delta_col, Control::change_t col_change, shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
+void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t delta_col, Control::change_t col_change, shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t row, col, width, height, view_row, view_col;
    get_cursor_pos(row, col, row_change);
    view->get_win_prop(width, height);
@@ -192,49 +198,49 @@ vector<shared_ptr<Mode>>& Control::get_modes() {
    return m_modes;
 }
 
-KeyCord::command_return_t my_exit(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   control.exit();
+KeyCord::command_return_t my_exit(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   control->exit();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_left(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   control.change(0, Control::change_t::VISUAL, -1, Control::change_t::VISUAL, model, view, control);
+KeyCord::command_return_t my_left(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   control->change(0, Control::change_t::VISUAL, -1, Control::change_t::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t my_right(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   auto s = control.get_row(Control::change_t::VISUAL, 0);
-   auto c = control.get_col(Control::change_t::VISUAL);
+KeyCord::command_return_t my_right(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   auto s = control->get_row(Control::change_t::VISUAL, 0);
+   auto c = control->get_col(Control::change_t::VISUAL);
    intptr_t width, height;
    view->get_win_prop(width, height);
    if ( c + 1 >= s->length() || c + 1 >= 76 )
    {
-      control.change(1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
+      control->change(1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
       my_begin_line(model, view, control);
    } else
    {
-      control.change(0, Control::change_t::VISUAL, 1, Control::change_t::VISUAL, model, view, control);
+      control->change(0, Control::change_t::VISUAL, 1, Control::change_t::VISUAL, model, view, control);
    }
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t down(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   control.change(1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
+KeyCord::command_return_t down(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   control->change(1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t up(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   control.change(-1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
+KeyCord::command_return_t up(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   control->change(-1, Control::change_t::VISUAL, 0, Control::change_t::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t word_right(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t word_right(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    intptr_t col_change = 0;
    if ( static_cast<size_t>(start) >= s->length() )
    {
-      control.change(1, Control::REAL, -start, Control::REAL, model, view, control);
+      control->change(1, Control::REAL, -start, Control::REAL, model, view, control);
       word_right(model, view, control);
       return make_tuple(&my_position_undo, true);
    }
@@ -248,18 +254,18 @@ KeyCord::command_return_t word_right(shared_ptr<Model> model, shared_ptr<View> v
       start++;
       col_change++;
    }
-   control.change(0, Control::REAL, col_change, Control::REAL, model, view, control);
+   control->change(0, Control::REAL, col_change, Control::REAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t word_left(shared_ptr<Model> model, shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t word_left(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    intptr_t col_change = 0;
    if ( static_cast<size_t>(start) >= s->length() )
    {
       start = s->length() - 1;
-      col_change = -static_cast<intptr_t>((control.get_col(Control::REAL) - s->length()));
+      col_change = -static_cast<intptr_t>((control->get_col(Control::REAL) - s->length()));
    }
    while ( start >= 0 && isspace(s->at(start)) )
    {
@@ -268,7 +274,7 @@ KeyCord::command_return_t word_left(shared_ptr<Model> model, shared_ptr<View> vi
    }
    if ( start <= 0 )
    {
-      control.change(-1, Control::REAL, numeric_limits<intptr_t>::min(), Control::REAL, model, view, control);
+      control->change(-1, Control::REAL, numeric_limits<intptr_t>::min(), Control::REAL, model, view, control);
       word_left(model, view, control);
       return make_tuple(&my_position_undo, true);
    } else
@@ -282,65 +288,65 @@ KeyCord::command_return_t word_left(shared_ptr<Model> model, shared_ptr<View> vi
       {
          col_change++;
       }
-      control.change(0, Control::REAL, col_change, Control::REAL, model, view, control);
+      control->change(0, Control::REAL, col_change, Control::REAL, model, view, control);
    }
    return make_tuple(&my_position_undo, true);
 }
 
-void my_empty_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col) {
+void my_empty_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col) {
 }
 
-void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col) {
-   control.change_cursor(row, col, Control::REAL);
-   control.change_view(view_row, view_col, model->number_of_lines());
+void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col) {
+   control->change_cursor(row, col, Control::REAL);
+   control->change_view(view_row, view_col, model->number_of_lines());
 }
 
-void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col) {
-   control.change_cursor(row, col, Control::REAL);
-   control.change_view(view_row, view_col, model->number_of_lines());
+void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col) {
+   control->change_cursor(row, col, Control::REAL);
+   control->change_view(view_row, view_col, model->number_of_lines());
    my_delete(model, view, control);
 }
 
-void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch) {
+void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch) {
    if ( wch == '\n' )
    {
 
    } else
    {
-      control.change_cursor(row, col - 1, Control::REAL);
-      control.change_view(view_row, view_col, model->number_of_lines());
+      control->change_cursor(row, col - 1, Control::REAL);
+      control->change_view(view_row, view_col, model->number_of_lines());
       my_insert(model, view, control, wch);
    }
 }
 
-KeyCord::command_return_t my_empty(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_empty(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_begin_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::VISUAL, 0);
-   intptr_t start = control.get_col(Control::VISUAL);
+KeyCord::command_return_t my_begin_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::VISUAL, 0);
+   intptr_t start = control->get_col(Control::VISUAL);
    intptr_t col_change = -start;
    while ( start + col_change < s->length() && isspace(s->at(start + col_change)) )
    {
       col_change++;
    }
    if ( col_change == 0 ) col_change = -start;
-   control.change(0, Control::VISUAL, col_change, Control::VISUAL, model, view, control);
+   control->change(0, Control::VISUAL, col_change, Control::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t my_end_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::VISUAL, 0);
-   size_t start = control.get_col(Control::VISUAL);
+KeyCord::command_return_t my_end_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::VISUAL, 0);
+   size_t start = control->get_col(Control::VISUAL);
    intptr_t col_change = s->length() - start;
-   control.change(0, Control::VISUAL, col_change, Control::VISUAL, model, view, control);
+   control->change(0, Control::VISUAL, col_change, Control::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t my_backspace(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t my_backspace(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    wchar_t wch;
    if ( start > 0 )
    {
@@ -349,38 +355,38 @@ KeyCord::command_return_t my_backspace(std::shared_ptr<Model> model, std::shared
          wch = s->at(start - 1);
          s->erase(start - 1, 1);
       }
-      control.change(0, Control::REAL, -1, Control::REAL, model, view, control);
+      control->change(0, Control::REAL, -1, Control::REAL, model, view, control);
       auto f = bind(&my_delete_character_undo, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6, placeholders::_7, wch);
       return make_tuple(f, true);
-   } else if ( control.get_row_no(Control::REAL) > 0 )
+   } else if ( control->get_row_no(Control::REAL) > 0 )
    {
-      auto prev = control.get_row(Control::REAL, -1);
+      auto prev = control->get_row(Control::REAL, -1);
       auto l = prev->length();
       prev->append(s->to_str());
-      model->erase(control.get_row_no(Control::REAL));
-      control.wrap_content();
-      control.change(-1, Control::REAL, l - start, Control::REAL, model, view, control);
+      model->erase(control->get_row_no(Control::REAL));
+      control->wrap_content();
+      control->change(-1, Control::REAL, l - start, Control::REAL, model, view, control);
    }
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t my_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    if ( start <= s->length() )
    {
       auto rest_of_line = s->substr(start);
       s->erase(start, s->length() - start);
-      model->insert(control.get_row_no(Control::REAL) + 1, rest_of_line);
-      control.wrap_content();
-      control.change(1, Control::REAL, -start, Control::REAL, model, view, control);
+      model->insert(control->get_row_no(Control::REAL) + 1, rest_of_line);
+      control->wrap_content();
+      control->change(1, Control::REAL, -start, Control::REAL, model, view, control);
    }
    return make_tuple(&my_insert_character_undo, true);
 }
 
-KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    if ( start < s->length() )
    {
       wchar_t undo_char = s->at(start);
@@ -389,24 +395,24 @@ KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_pt
       return make_tuple(undo, true);
    } else if ( start == s->length() )
    {
-      auto next = control.get_row(Control::REAL, 1);
+      auto next = control->get_row(Control::REAL, 1);
       auto l = next->length();
       s->append(next->to_str());
-      model->erase(control.get_row_no(Control::REAL) + 1);
-      control.wrap_content();
+      model->erase(control->get_row_no(Control::REAL) + 1);
+      control->wrap_content();
       auto undo = bind(my_delete_character_undo, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6, placeholders::_7, '\n');
       return make_tuple(undo, true);
-      //control.change(-1, Control::REAL, l - start, Control::REAL, model, view, control);
+      //control->change(-1, Control::REAL, l - start, Control::REAL, model, view, control);
    }
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_save(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_save(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    model->save();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    namespace fs = boost::filesystem;
    auto path = model->get_row(0)->to_str();
    wstring filename = L"";
@@ -486,7 +492,7 @@ KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::
       model->insert(0, full_path.generic_wstring());
       while ( model->number_of_lines() > 1 ) model->erase(1);
       for ( auto m : possible_filenames ) model->insert(1, m);
-      control.wrap_content();
+      control->wrap_content();
       my_end_line(model, view, control);
    } else // check relative cd
    {
@@ -496,43 +502,44 @@ KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   control.exit();
+KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   control->exit();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model) {
-   file_select_control->loop();
+KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model, shared_ptr<View> file_select_view) {
+   loop(file_select_model, file_select_view, file_select_control);
+   //file_select_control->loop();
    auto path = file_select_model->get_row(0)->to_str();
    model->load(path);
-   control.wrap_content();
-   control.change_cursor(0, 0, Control::REAL);
-   control.change_view(0, 0, model->number_of_lines());
-//	control.assign_mode_based_on_extension();
+   control->wrap_content();
+   control->change_cursor(0, 0, Control::REAL);
+   control->change_view(0, 0, model->number_of_lines());
+   //assign_mode_based_on_extension(control);
    file_select_control->set_execute();
-   control.get_command_history().clear();
+   control->get_command_history().clear();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, wchar_t wc) {
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   intptr_t start = control.get_col(Control::REAL);
+KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, wchar_t wc) {
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   intptr_t start = control->get_col(Control::REAL);
    while ( s->length() < start ) s->append(1, L' ');
    auto it = s->begin();
    s->insert(it + start, wc);
-   control.change(0, Control::REAL, 1, Control::REAL, model, view, control);
+   control->change(0, Control::REAL, 1, Control::REAL, model, view, control);
    return make_tuple(&my_insert_character_undo, true);
 }
 
-KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t view_row, view_col;
-   control.get_view(view_row, view_col);
+   control->get_view(view_row, view_col);
    static size_t last_key_press = 0;
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
-   if ( control.get_col(Control::REAL) < s->length() )
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
+   if ( control->get_col(Control::REAL) < s->length() )
    {
-      auto copy = s->substr(control.get_col(Control::REAL));
-      s->erase(control.get_col(Control::REAL), s->length() - control.get_col(Control::REAL));
+      auto copy = s->substr(control->get_col(Control::REAL));
+      s->erase(control->get_col(Control::REAL), s->length() - control->get_col(Control::REAL));
       if ( _number_key_presses - last_key_press == 1 )
       {
          if ( copy == L"" )
@@ -547,12 +554,12 @@ KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_
       {
          _clipboard.add_clip(copy);
       }
-      if ( copy == L"" && control.get_row_no(Control::REAL) < model->number_of_lines() )
+      if ( copy == L"" && control->get_row_no(Control::REAL) < model->number_of_lines() )
       {
-         auto temp = control.get_row(Control::REAL, 1);
+         auto temp = control->get_row(Control::REAL, 1);
          s->append(temp->to_str());
-         model->erase(control.get_row_no(Control::REAL) + 1);
-         control.wrap_content();
+         model->erase(control->get_row_no(Control::REAL) + 1);
+         control->wrap_content();
       }
    } else
    {
@@ -561,10 +568,10 @@ KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_
          if ( _number_key_presses - last_key_press == 1 )
          {
             (*_clipboard.begin()).m_lines.push_back(L"");
-            auto temp = control.get_row(Control::REAL, 1);
+            auto temp = control->get_row(Control::REAL, 1);
             s->append(temp->to_str());
-            model->erase(control.get_row_no(Control::REAL) + 1);
-            control.wrap_content();
+            model->erase(control->get_row_no(Control::REAL) + 1);
+            control->wrap_content();
          } else
          {
             _clipboard.add_clip(Clip(L""));
@@ -575,51 +582,51 @@ KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_paste_from_clipboard(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   auto start = control.get_row_no(Control::REAL);
-   auto orig_col = control.get_col(Control::REAL);
-   shared_ptr<AttributedString> s = control.get_row(Control::REAL, 0);
+KeyCord::command_return_t my_paste_from_clipboard(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   auto start = control->get_row_no(Control::REAL);
+   auto orig_col = control->get_col(Control::REAL);
+   shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
    auto clip = _clipboard.top_clip();
    size_t last_clip_length;
    if ( clip.m_lines.size() > 0 )
    {
       wstring cut;
-      while ( control.get_col(Control::REAL) >= s->length() ) s->append(L" ");
-      cut = s->substr(control.get_col(Control::REAL));
-      s->erase(control.get_col(Control::REAL), s->length() - control.get_col(Control::REAL));
+      while ( control->get_col(Control::REAL) >= s->length() ) s->append(L" ");
+      cut = s->substr(control->get_col(Control::REAL));
+      s->erase(control->get_col(Control::REAL), s->length() - control->get_col(Control::REAL));
       s->append(clip.m_lines[0]);
       last_clip_length = clip.m_lines[0].length();
       for ( size_t i = 1; i < clip.m_lines.size(); i++ )
       {
          start++;
          model->insert(start, clip.m_lines[i]);
-         control.wrap_content();
+         control->wrap_content();
          orig_col = 0;
          last_clip_length = clip.m_lines[i].length();
       }
       s = model->get_row(start);
       s->insert(s->begin() + orig_col + last_clip_length, cut.begin(), cut.end());
-      control.wrap_content();
+      control->wrap_content();
    }
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t row, col;
-   control.get_cursor_pos(row, col, Control::change_t::REAL);
-   auto orig_col = control.get_col(Control::change_t::REAL);
+   control->get_cursor_pos(row, col, Control::change_t::REAL);
+   auto orig_col = control->get_col(Control::change_t::REAL);
    model->remove_selections();
    shared_ptr<Selection> s = make_shared<Selection>(row, col, Control::change_t::REAL);
    model->set_start_selection(s);
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    model->remove_selections();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    auto selections = model->get_selections();
    if ( selections.size() == 1 )
    {
@@ -639,7 +646,7 @@ KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::s
          }
       } else
       {
-         Selection::selection_t cursor = make_tuple(control.get_row_no(Control::REAL), control.get_col(Control::REAL), Control::change_t::REAL);
+         Selection::selection_t cursor = make_tuple(control->get_row_no(Control::REAL), control->get_col(Control::REAL), Control::change_t::REAL);
          if ( selection->get_start(Control::change_t::REAL, control) <= cursor )
          {
             first = selection->get_start(Control::change_t::REAL, control);
@@ -665,7 +672,7 @@ KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::s
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    auto selections = model->get_selections();
    if ( selections.size() == 1 )
    {
@@ -685,7 +692,7 @@ KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::sh
          }
       } else
       {
-         Selection::selection_t cursor = make_tuple(control.get_row_no(Control::REAL), control.get_col(Control::REAL), Control::change_t::REAL);
+         Selection::selection_t cursor = make_tuple(control->get_row_no(Control::REAL), control->get_col(Control::REAL), Control::change_t::REAL);
          if ( selection->get_start(Control::change_t::REAL, control) <= cursor )
          {
             first = selection->get_start(Control::change_t::REAL, control);
@@ -706,13 +713,13 @@ KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::sh
          {
             clip.m_lines.push_back(line->substr(get<1>(first), get<1>(second) - get<1>(first)));
             line->erase(get<1>(first), get<1>(second) - get<1>(first));
-            delta_col = get<1>(first) - (control.get_col(Control::REAL));
+            delta_col = get<1>(first) - (control->get_col(Control::REAL));
          } else if ( i == get<0>(second) )
          {
             size_t scol = 0;
             clip.m_lines.push_back(line->substr(scol, get<1>(second) - scol));
             line->erase(scol, get<1>(second) - scol);
-            delta_col = get<1>(first) - (control.get_col(Control::REAL));
+            delta_col = get<1>(first) - (control->get_col(Control::REAL));
          } else if ( i == get<0>(first) )
          {
             size_t scol = get<1>(first);
@@ -738,8 +745,8 @@ KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::sh
          model->erase(get<0>(first) + 1);
          delta_row++;
       }
-      control.wrap_content();
-      control.change(-delta_row, Control::REAL, delta_col, Control::REAL, model, view, control);
+      control->wrap_content();
+      control->change(-delta_row, Control::REAL, delta_col, Control::REAL, model, view, control);
       _clipboard.add_clip(clip);
       auto ftemp = bind(&my_cut_undo, placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4, placeholders::_5, placeholders::_6, placeholders::_7, clip.m_lines, get<0>(first), get<1>(first));
       return make_tuple(ftemp, true);
@@ -748,9 +755,9 @@ KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::sh
    return make_tuple(&my_empty_undo, false);
 }
 
-void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, vector<wstring> lines, intptr_t r, intptr_t c) {
-   control.change_cursor(r, c, Control::REAL);
-   control.change_view(view_row, view_col, model->number_of_lines());
+void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, vector<wstring> lines, intptr_t r, intptr_t c) {
+   control->change_cursor(r, c, Control::REAL);
+   control->change_view(view_row, view_col, model->number_of_lines());
    for ( size_t i = r; i < r + lines.size(); i++ )
    {
       auto line = model->get_row(i);
@@ -767,26 +774,26 @@ void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Contr
          model->insert(i, lines[i - r]);
       }
    }
-   control.wrap_content();
+   control->wrap_content();
 }
 
-KeyCord::command_return_t my_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   control.get_command_history().undo();
+KeyCord::command_return_t my_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   control->get_command_history().undo();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_redo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
-   control.get_command_history().redo();
+KeyCord::command_return_t my_redo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
+   control->get_command_history().redo();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_start_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_start_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    _macro.clear_recording();
    _macro.set_recording();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_stop_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_stop_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    if ( _macro.is_recording() )
    {
       _macro.stop_recording();
@@ -794,26 +801,27 @@ KeyCord::command_return_t my_stop_recording(std::shared_ptr<Model> model, std::s
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_execute_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_execute_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    _macro.play_back();
    return make_tuple(&my_empty_undo, false);
 }
 
-KeyCord::command_return_t my_page_up(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_page_up(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t width, height;
    view->get_win_prop(width, height);
-   control.change(-height, Control::VISUAL, 0, Control::VISUAL, model, view, control);
+   control->change(-height, Control::VISUAL, 0, Control::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t width, height;
    view->get_win_prop(width, height);
-   control.change(height, Control::VISUAL, 0, Control::VISUAL, model, view, control);
+   control->change(height, Control::VISUAL, 0, Control::VISUAL, model, view, control);
    return make_tuple(&my_position_undo, true);
 }
 
-KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control) {
+KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    return make_tuple(&my_empty_undo, false);
 }
+
 

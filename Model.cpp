@@ -181,5 +181,7 @@ std::wstring Model::get_filename() const {
 std::wstring Model::get_extension() const {
    namespace fs = boost::filesystem;
    fs::path p = fs::path(m_path);
-   return p.extension().wstring();
+   auto ret = p.extension().wstring(); 
+   _debug << "get_extension: " << ret << "\n";
+   return ret;
 }

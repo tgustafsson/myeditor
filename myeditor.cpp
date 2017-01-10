@@ -16,6 +16,7 @@
 #include "DummyView.h"
 #include "Cords.h"
 #include "CommandLine.h"
+#include "Utilities.h"
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
    _file_select_cords.push_back(KeyCord({ Control::keys::ENTER }, &my_file_select_enter));
    shared_ptr<Model> file_select_model = make_shared<Model>();
    shared_ptr<CursesView> file_select_view = make_shared<CursesView>(-2, 12, 1, -13);
-   shared_ptr<CursesControl> file_select_control = make_shared<CursesControl>(file_select_model, file_select_view);
+   shared_ptr<CursesControl> file_select_control = make_shared<CursesControl>(file_select_model);
    shared_ptr<Mode> file_select_mode = make_shared<FileSelectMode>(_file_select_cords, file_select_control, &my_insert);
    file_select_control->add_mode(file_select_mode);
 
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]) {
    _incremental_search_cords.push_back(KeyCord({ Control::keys::CTRL_S }, incremental_search_again));
    shared_ptr<Model> incremental_search_model = make_shared<Model>();
    shared_ptr<CursesView> incremental_search_view = make_shared<CursesView>(-2, 3, 1, -2);
-   shared_ptr<CursesControl> incremental_search_control = make_shared<CursesControl>(incremental_search_model, incremental_search_view);
+   shared_ptr<CursesControl> incremental_search_control = make_shared<CursesControl>(incremental_search_model);
    auto incremental_search_insert = bind(&IncrementalSearch::my_incremental_search_insert, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4);
    shared_ptr<Mode> incremental_search_mode = make_shared<FundamentalMode>(_incremental_search_cords, incremental_search_control, incremental_search_insert);
    incremental_search_control->add_mode(incremental_search_mode);
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
    _command_line_cords.push_back(KeyCord({ Control::keys::UP }, &my_empty)); 
    shared_ptr<Model> command_line_model = make_shared<Model>();
    shared_ptr<CursesView> command_line_view = make_shared<CursesView>(-2, 3, 1, -2); 
-   shared_ptr<CursesControl> command_line_control = make_shared<CursesControl>(command_line_model, command_line_view);
+   shared_ptr<CursesControl> command_line_control = make_shared<CursesControl>(command_line_model);
    CommandLine cl;
    auto command_line_insert = bind(&CommandLine::my_command_line_insert, ref(cl), placeholders::_1, placeholders::_2, placeholders::_3, command_line_control, command_line_model); 
    shared_ptr<Mode> command_line_mode = make_shared<FundamentalMode>(_command_line_cords, command_line_control, command_line_insert);
@@ -118,9 +119,9 @@ int main(int argc, char *argv[]) {
    _main_cords.push_back(KeyCord({ Control::keys::ENTER }, &my_enter));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_D }, &my_delete));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_X, Control::keys::CTRL_S }, &my_save));
-   auto open_file = bind(my_open_file, placeholders::_1, placeholders::_2, placeholders::_3, file_select_control, file_select_model);
+   auto open_file = bind(my_open_file, placeholders::_1, placeholders::_2, placeholders::_3, file_select_control, file_select_model, file_select_view);
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_X, Control::keys::CTRL_F }, open_file));
-   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model);
+   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model, incremental_search_view);
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_S }, incremental_search));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_K }, &my_kut_line));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_Y }, &my_paste_from_clipboard));
@@ -148,7 +149,8 @@ int main(int argc, char *argv[]) {
    main_control->assign_mode_based_on_extension(main_control);
    main_control->add_mode(ism_mode);
    main_control->add_mode(selection_mode);
-   main_control->loop();
+   //main_control->loop();
+   loop(m, main_view, main_control);
    incremental_search_control->exit();
    file_select_control->exit();
    main_view.reset(new DummyView);

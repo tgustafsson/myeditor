@@ -26,7 +26,7 @@ bool Selection::has_end() const
 	return m_has_end;
 }
 
-Selection::selection_t Selection::get_start(Control::change_t c, Control& control) const
+Selection::selection_t Selection::get_start(Control::change_t c, shared_ptr<Control> control) const
 {
 	if (c == Control::change_t::REAL)
 	{
@@ -35,12 +35,12 @@ Selection::selection_t Selection::get_start(Control::change_t c, Control& contro
 	else if (c == Control::change_t::VISUAL)
 	{
 		intptr_t row, col;
-		control.convert_to(Control::change_t::REAL, get<0>(m_start), get<1>(m_start), Control::change_t::VISUAL, row, col);
+		control->convert_to(Control::change_t::REAL, get<0>(m_start), get<1>(m_start), Control::change_t::VISUAL, row, col);
 		return make_tuple(row, col, Control::change_t::VISUAL);
 	}
 }
 
-Selection::selection_t Selection::get_end(Control::change_t c, Control& control) const
+Selection::selection_t Selection::get_end(Control::change_t c, shared_ptr<Control> control) const
 {
 	if (c == Control::change_t::REAL)
 	{
@@ -49,7 +49,7 @@ Selection::selection_t Selection::get_end(Control::change_t c, Control& control)
 	else if (c == Control::change_t::VISUAL)
 	{
 		intptr_t row, col;
-		control.convert_to(Control::change_t::REAL, get<0>(m_end), get<1>(m_end), Control::change_t::VISUAL, row, col);
+		control->convert_to(Control::change_t::REAL, get<0>(m_end), get<1>(m_end), Control::change_t::VISUAL, row, col);
 		return make_tuple(row, col, Control::change_t::VISUAL);
 	}
 }

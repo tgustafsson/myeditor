@@ -13,7 +13,7 @@ class Control
 {
 protected:
    std::shared_ptr<Model> m_model;
-   std::shared_ptr<View> m_view;
+   //std::shared_ptr<View> m_view;
    std::vector<std::shared_ptr<Mode>> m_modes;
    bool m_execute;
    CommandHistory m_commandhistory;
@@ -65,19 +65,19 @@ public:
       REAL
    };
    
-   Control(std::shared_ptr<Model> m, std::shared_ptr<View> v);
+   Control(std::shared_ptr<Model> m);
    virtual ~Control();
    void add_mode(std::shared_ptr<Mode> mode);
-   void assign_mode_based_on_extension(std::shared_ptr<Control> control);
    void exit();
    void set_execute();
+   bool get_execute();
    std::vector<std::shared_ptr<Mode>>& get_modes();
    virtual std::tuple<keys, int> get_key() const = 0;
-   virtual void loop() = 0;
+   //virtual void loop() = 0;
    CommandHistory& get_command_history();
-
+   void assign_mode_based_on_extension(std::shared_ptr<Control> control); 
    virtual void wrap_content();
-   virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
+   virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
    virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
    virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines);
    virtual void get_cursor_pos(intptr_t& row, intptr_t& col, change_t t);
@@ -92,44 +92,44 @@ public:
 extern size_t _number_key_presses;
 
 //void change(intptr_t delta_row, intptr_t delta_col, std::shared_ptr<Model> model, std::shared_ptr<View> view);
-KeyCord::command_return_t my_left(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_right(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t down(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t up(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t word_right(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t word_left(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_exit(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_empty(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_begin_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_end_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, wchar_t wc);
-KeyCord::command_return_t my_backspace(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_save(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model);
-KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_paste_from_clipboard(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_redo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_start_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_stop_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_execute_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_page_up(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
-KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
+KeyCord::command_return_t my_left(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_right(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t down(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t up(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t word_right(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t word_left(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_exit(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_empty(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_begin_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_end_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, wchar_t wc);
+KeyCord::command_return_t my_backspace(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_delete(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_save(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model,std::shared_ptr<View> file_select_view);
+KeyCord::command_return_t my_file_select_tab(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_paste_from_clipboard(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_copy_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_redo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_start_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_stop_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_execute_recording(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_page_up(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
+KeyCord::command_return_t my_page_down(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
 
-void my_empty_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col);
-void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col);
-void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col);
-void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch);
-void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, size_t row, size_t col, size_t view_row, size_t view_col, std::vector<std::wstring> lines, intptr_t r, intptr_t c);
+void my_empty_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col);
+void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col);
+void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col);
+void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch);
+void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, std::vector<std::wstring> lines, intptr_t r, intptr_t c);
 
-KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control);
+KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
 
 #endif //CONTROL_H

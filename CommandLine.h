@@ -16,5 +16,5 @@ public:
    CommandLine() : m_run_loop(true), m_quitting(false) 
    {
    }
-   KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, Control& control, std::shared_ptr<Control> command_line_control, std::shared_ptr<Model> command_line_model); 
+   KeyCord::command_return_t my_command_line_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control, std::shared_ptr<Control> command_line_control, std::shared_ptr<Model> command_line_model); 
 };

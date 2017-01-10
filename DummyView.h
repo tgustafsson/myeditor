@@ -12,7 +12,7 @@ public:
 	{
 	}
 	virtual void getmaxxy(intptr_t& rows, intptr_t& cols);
-	virtual void update(std::vector<std::shared_ptr<AttributedString>>, std::shared_ptr<Mode>, size_t a);
+	virtual void update(std::vector<std::shared_ptr<AttributedString>>, size_t a);
 	virtual void  get_win_prop(intptr_t& a, intptr_t& b);
 	virtual void  change_visual_cursor(size_t a, size_t b);
 	virtual void  refresh();
