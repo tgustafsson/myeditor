@@ -16,7 +16,7 @@ const std::wstring& SoftwrapAttributedString::to_str()
 	return static_cast<const wstring&>(m_string);
 }
 
-std::tuple<wchar_t&, AttributedString::color&> SoftwrapAttributedString::operator[](size_t index)
+std::tuple<const wchar_t&, AttributedString::color&> SoftwrapAttributedString::operator[](size_t index)
 {
 	return AttributedString::operator[](index + m_offset);
 }
@@ -31,12 +31,12 @@ size_t SoftwrapAttributedString::length() const
 	return size();
 }
 
-AttributedString::iterator SoftwrapAttributedString::begin()
+AttributedString::const_iterator SoftwrapAttributedString::begin()
 {
 	return AttributedString::begin() + m_offset;
 }
 
-AttributedString::iterator SoftwrapAttributedString::end()
+AttributedString::const_iterator SoftwrapAttributedString::end()
 {
 	if (m_offset + m_width > m_content->length())
 		return m_content->end();
@@ -61,12 +61,12 @@ void SoftwrapAttributedString::append(const std::wstring& ws)
 	m_as->invalidate_syntax_coloring();
 }
 
-void SoftwrapAttributedString::insert(AttributedString::iterator pos, wchar_t wc)
+void SoftwrapAttributedString::insert(AttributedString::const_iterator pos, wchar_t wc)
 {
 	m_as->insert(pos, wc);
 }
 
-void SoftwrapAttributedString::insert(AttributedString::iterator pos, std::wstring::iterator begin, std::wstring::iterator end)
+void SoftwrapAttributedString::insert(AttributedString::const_iterator pos, std::wstring::iterator begin, std::wstring::iterator end)
 {
 	m_as->insert(pos, begin, end);
 }
