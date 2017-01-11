@@ -53,25 +53,6 @@ void Control::wrap_content() {
 
 }
 
-void Control::assign_mode_based_on_extension(shared_ptr<Control> control) {
-   auto extension = m_model->get_extension();
-   _debug << "assign_mode_based_on_extension: " << extension << "\n";
-   if ( m_modes.size() == 0 )
-   {
-      m_modes.resize(1);
-   }
-   if ( extension == L".cpp" || extension == L".cc" || extension == L".h" )
-   {
-      m_modes[0] = make_shared<CppMode>(_main_cords, control, &my_insert);
-   } else if ( extension == L".tex" )
-   {
-      m_modes[0] = make_shared<LatexMode>(_main_cords, control, &my_insert);
-   } else
-   {
-      m_modes[0] = make_shared<FundamentalMode>(_main_cords, control, &my_insert);
-   }
-}
-
 void Control::add_mode(shared_ptr<Mode> mode) {
    m_modes.push_back(mode);
 }
@@ -515,7 +496,7 @@ KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared
    control->wrap_content();
    control->change_cursor(0, 0, Control::REAL);
    control->change_view(0, 0, model->number_of_lines());
-   //assign_mode_based_on_extension(control);
+   assign_mode_based_on_extension(model, control);
    file_select_control->set_execute();
    control->get_command_history().clear();
    return make_tuple(&my_empty_undo, false);

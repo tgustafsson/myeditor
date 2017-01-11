@@ -75,7 +75,6 @@ public:
    virtual std::tuple<keys, int> get_key() const = 0;
    //virtual void loop() = 0;
    CommandHistory& get_command_history();
-   void assign_mode_based_on_extension(std::shared_ptr<Control> control); 
    virtual void wrap_content();
    virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
    virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
