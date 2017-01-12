@@ -19,7 +19,8 @@ public:
       DATATYPE,
       CERROR,
       INC_SEARCH,
-      HILIGHT
+      HILIGHT,
+      TAB
    };
 protected:
    std::shared_ptr<std::wstring> m_content;
@@ -49,6 +50,6 @@ public:
    virtual void insert(const_iterator pos, std::wstring::const_iterator begin, std::wstring::const_iterator end);
    virtual void erase(size_t off, size_t count);
    virtual std::wstring substr(size_t off = 0, size_t len = std::string::npos) const;
-   AttributedString& operator=(const std::wstring& rhs);
-   AttributedString& operator=(const AttributedString& rhs);
+// AttributedString& operator=(const std::wstring& rhs);
+// AttributedString& operator=(const AttributedString& rhs);
 };

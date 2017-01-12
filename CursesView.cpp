@@ -47,6 +47,7 @@ CursesView::CursesView(intptr_t width, intptr_t height, intptr_t win_x, intptr_t
          init_pair(8, COLOR_CYAN, COLOR_BLACK); // data type
          init_pair(9, COLOR_BLACK, COLOR_WHITE); // inc search
          init_pair(10, COLOR_BLACK, COLOR_YELLOW); // hilight
+         init_pair(11, COLOR_BLACK, COLOR_MAGENTA); // tab
          m_color_to_pair[AttributedString::color::KEYWORD] = 1;
          m_color_to_pair[AttributedString::color::NORMAL] = 2;
          m_color_to_pair[AttributedString::color::LINE_COMMENT] = 3;
@@ -56,7 +57,8 @@ CursesView::CursesView(intptr_t width, intptr_t height, intptr_t win_x, intptr_t
          m_color_to_pair[AttributedString::color::TRIPLE_QUOTE_STRING] = 7;
          m_color_to_pair[AttributedString::color::DATATYPE] = 8;
          m_color_to_pair[AttributedString::color::INC_SEARCH] = 9;
-         m_color_to_pair[AttributedString::color::HILIGHT] = 10;
+         m_color_to_pair[AttributedString::color::HILIGHT] = 10; 
+         m_color_to_pair[AttributedString::color::TAB] = 11; 
       }
       raw();
       noecho();

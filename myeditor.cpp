@@ -17,6 +17,7 @@
 #include "Cords.h"
 #include "CommandLine.h"
 #include "Utilities.h"
+#include "TabsMode.h"
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/positional_options.hpp>
@@ -145,10 +146,12 @@ int main(int argc, char *argv[]) {
    shared_ptr<Mode> ism_mode = make_shared<IncrementalSearchMode>(_main_cords, main_control, &my_insert);
    //const KeyCords& keys, std::shared_ptr<Control> control, std::shared_ptr<Model> model, std::shared_ptr<View> view, KeyCord::insert_func insert
    shared_ptr<Mode> selection_mode = make_shared<SelectionMode>(_main_cords, main_control, m, main_view, &my_insert);
+   shared_ptr<Mode> tabs_mode = make_shared<TabsMode>(_main_cords, main_control, &my_insert);
    main_control->add_mode(latex_mode);
    assign_mode_based_on_extension(m, main_control);
    main_control->add_mode(ism_mode);
    main_control->add_mode(selection_mode);
+   main_control->add_mode(tabs_mode);
    //main_control->loop();
    loop(m, main_view, main_control);
    incremental_search_control->exit();

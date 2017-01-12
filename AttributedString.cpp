@@ -25,8 +25,10 @@ AttributedString::AttributedString(const std::wstring& s) {
 }
 
 AttributedString::AttributedString(const AttributedString& as) {
+   _debug << "AttributedString copy constructor\n";
    m_valid_syntax_coloring = as.m_valid_syntax_coloring;
-   this->m_content = as.m_content;
+   this->m_content = make_shared<wstring>();
+   *(this->m_content) = *(as.m_content);
    this->m_color = as.m_color;
 }
 
@@ -110,16 +112,17 @@ wstring AttributedString::substr(size_t off, size_t len) const {
    return m_content->substr(off, len);
 }
 
-AttributedString& AttributedString::operator = (const wstring& rhs) {
-   *(this->m_content) = rhs;
-   m_color.resize(m_content->length());
-   m_valid_syntax_coloring = false;
-   return *this;
-}
-
-AttributedString& AttributedString::operator = (const AttributedString& rhs) {
-   m_content = rhs.m_content;
-   m_color = rhs.m_color;
-   m_valid_syntax_coloring = rhs.m_valid_syntax_coloring;
-   return *this;
-}
+//AttributedString& AttributedString::operator = (const wstring& rhs) {
+//   *(this->m_content) = rhs;
+//   m_color.resize(m_content->length());
+//   m_valid_syntax_coloring = false;
+//   return *this;
+//}
+//
+//AttributedString& AttributedString::operator = (const AttributedString& rhs) {
+//   m_content = rhs.m_content;
+//   m_color = rhs.m_color;
+//   m_valid_syntax_coloring = rhs.m_valid_syntax_coloring;
+//   m_line_feed = rhs.m_line_feed;
+//   return *this;
+//}
