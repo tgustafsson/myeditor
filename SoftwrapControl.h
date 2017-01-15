@@ -27,6 +27,6 @@ public:
 	virtual std::shared_ptr<AttributedString> get_row(change_t t, intptr_t delta = 0);
 	virtual size_t get_row_no(change_t t);
 	virtual size_t get_col(change_t t);
-	virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, size_t start_row, size_t end_row);
+	virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, intptr_t start_row, intptr_t end_row);
 	//virtual void loop();
 };

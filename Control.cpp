@@ -118,8 +118,20 @@ void Control::get_view(intptr_t& row, intptr_t& col) {
    col = m_view_col;
 }
 
-vector<shared_ptr<AttributedString>> Control::rows(change_t t, size_t start_row, size_t end_row) {
-   return m_model->rows(start_row, end_row);
+vector<shared_ptr<AttributedString>> Control::rows(change_t t, intptr_t start_row, intptr_t end_row) {
+   auto rows = m_model->rows(start_row, end_row); 
+
+   if ( t == Control::WITH_INSERTED_VISUAL_LINES )
+   {
+      for ( intptr_t i = start_row; i < end_row && i < rows.size(); i++ )
+      {
+         if ( m_map_real_row_to_visual_contents.find(start_row + i) != m_map_real_row_to_visual_contents.end())
+         {
+            rows[i - start_row] = m_map_real_row_to_visual_contents[start_row + i];
+         }
+      }
+   }
+   return rows;
 }
 
 void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t delta_col, Control::change_t col_change, shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
@@ -177,6 +189,15 @@ void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t 
 
 vector<shared_ptr<Mode>>& Control::get_modes() {
    return m_modes;
+}
+
+void Control::insert_visual_rows(const vector<shared_ptr<AttributedString>>& r, intptr_t start_row) {
+   for ( intptr_t i = 0; i < r.size(); i++, start_row++)
+   {
+      _debug << "insert_visual_rows: map " << start_row << " to " << r[i]->to_str() << "\n";
+      m_map_real_row_to_visual_contents[start_row] = r[i];
+   }
+   _debug << "leave insert_visual_rows\n";
 }
 
 KeyCord::command_return_t my_exit(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {

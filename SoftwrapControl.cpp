@@ -1,6 +1,7 @@
 #include "SoftwrapControl.h"
 #include "Macro.h"
 #include "Debug.h"
+#include <limits>
 
 using namespace std;
 
@@ -29,7 +30,9 @@ void SoftwrapControl::wrap_content() {
    m_softwrap.clear();
    m_map_soft_to_real.clear();
    m_map_real_to_soft.clear();
-   for ( auto c : m_model->rows() )
+   auto _rows = rows(Control::WITH_INSERTED_VISUAL_LINES, 0, numeric_limits<intptr_t>::max());
+   _debug << "wrap_content: " << _rows.size() << "\n";
+   for (auto c : _rows)
    {
       size_t j = 0;
       do
@@ -43,6 +46,7 @@ void SoftwrapControl::wrap_content() {
       while ( j * m_width < c->length() );
       i++;
    }
+   _debug << "leave wrap_content\n";
 }
 
 void SoftwrapControl::change_cursor(intptr_t row, intptr_t col, change_t t) {
@@ -108,18 +112,22 @@ size_t SoftwrapControl::get_col(Control::change_t t) {
    }
 }
 
-vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, size_t start_row, size_t end_row) {
+vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, intptr_t start_row, intptr_t end_row) {
    if ( t == Control::REAL )
    {
       return Control::rows(t, start_row, end_row);
    } else if ( t == Control::VISUAL )
    {
       vector<shared_ptr<AttributedString>> ret;
-      for ( size_t i = start_row; i <= end_row && i < m_softwrap.size(); i++ )
+      for ( intptr_t i = start_row; i <= end_row && i < m_softwrap.size(); i++ )
       {
          ret.push_back(m_softwrap[i]);
       }
       return ret;
+   }
+   else if ( t == Control::WITH_INSERTED_VISUAL_LINES )
+   {
+      return Control::rows(t, start_row, end_row);
    }
 }
 

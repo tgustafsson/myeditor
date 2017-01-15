@@ -28,11 +28,15 @@ protected:
    bool m_valid_syntax_coloring;
    wchar_t m_line_feed;
 public:
+   AttributedString(const AttributedString& as);
+public:
    typedef std::wstring::iterator iterator;
    typedef std::wstring::const_iterator const_iterator;
    AttributedString(std::shared_ptr<std::wstring> s);
    AttributedString(const std::wstring& s);
-   AttributedString(const AttributedString& as);
+   //AttributedString(const AttributedString& as);
+   std::shared_ptr<AttributedString> deep_copy() const; 
+   std::shared_ptr<AttributedString> shallow_copy() const; 
    virtual const std::wstring& to_str();
    virtual std::tuple<const wchar_t&, color&> operator [](size_t index);
    void invalidate_syntax_coloring();

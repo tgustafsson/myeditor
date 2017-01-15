@@ -1,5 +1,7 @@
 #include "SoftwrapAttributedString.h"
 #include <algorithm>
+#include "Debug.h"
+
 using namespace std;
 
 SoftwrapAttributedString::SoftwrapAttributedString(std::shared_ptr<AttributedString> s, size_t offset, size_t width) : AttributedString(*s) {
@@ -7,6 +9,7 @@ SoftwrapAttributedString::SoftwrapAttributedString(std::shared_ptr<AttributedStr
    m_string = L"";
    m_offset = offset;
    m_width = width;
+   _debug << "SoftwrapAttributedString: content " << *(this->m_content) << ", offset " << m_offset << " m_width" << width << "\n";
 }
 
 const std::wstring& SoftwrapAttributedString::to_str() {
@@ -14,7 +17,8 @@ const std::wstring& SoftwrapAttributedString::to_str() {
    return static_cast<const wstring&>(m_string);
 }
 
-std::tuple<const wchar_t&, AttributedString::color&> SoftwrapAttributedString::operator[](size_t index) {
+std::tuple<const wchar_t&, AttributedString::color&> SoftwrapAttributedString::operator[](size_t index)
+{
    return AttributedString::operator[](index + m_offset);
 }
 

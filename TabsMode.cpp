@@ -1,21 +1,24 @@
 #include "TabsMode.h"
 #include "Control.h"
 #include "Debug.h"
+#include <memory>
 
 using namespace std;
 
-TabsMode::TabsMode(const KeyCords& keys, shared_ptr<Control> control, KeyCord::insert_func insert) : Mode(keys, control, insert) {
+TabsMode::TabsMode(const KeyCords& keys, shared_ptr<Control> control, KeyCord::insert_func insert): Mode(keys, control, insert)
+{
 }
 
 vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_ptr<AttributedString>> rows) {
    _debug << "TabsMode\n";
    intptr_t row_nr, col;
-   m_control->get_cursor_pos(row_nr, col, Control::change_t::REAL);
+   intptr_t new_col = col;
+   m_control->get_cursor_pos(row_nr, col, Control::change_t::VISUAL);
    vector<shared_ptr<AttributedString>> ret;
    size_t r = 0;
    for (auto row : rows)
    {
-      decltype(row) rcopy;
+      shared_ptr<AttributedString> rcopy;
       size_t i = 0, j = 0;
       bool copy = false;
       while ( i < row->length() )
@@ -26,18 +29,18 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
             if ( !copy )
             {
                _debug << "Create copy\n";
-               rcopy = make_shared<decltype(row)::element_type>(*row);
+               rcopy = row->deep_copy();
                copy = true;
             }
             _debug << "Erase " << get<0>((*rcopy)[j])<< "\n";
             rcopy->erase(j, 1);
-            while ( ((j + 1) % 4) != 0 )
+            for ( intptr_t length = 4 - (j % 4) - 1; length > 0; length-- )
             {
                if ( row_nr == r )
                {
                   if ( j > col )
                   {
-                     col++;
+                     new_col++;
                   }
                }
                auto b = rcopy->begin();
@@ -61,6 +64,5 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
          ret.push_back(row);
       }
    }
-   m_control->change_cursor(row_nr, col, Control::change_t::REAL);
    return ret;
 }

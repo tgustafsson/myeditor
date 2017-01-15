@@ -16,11 +16,41 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       view->get_win_prop(width, height);
       intptr_t view_row, view_col;
       control->get_view(view_row, view_col);
-      auto _rows = control->rows(Control::VISUAL, view_row, view_row + height);
+      intptr_t row_copy_, col_copy_;
+      control->get_cursor_pos(row_copy_, col_copy_, Control::change_t::REAL);
+      vector<intptr_t> real_rows_being_visual;
+      for ( int i = 0; i < height; i++)
+      {
+         control->change_cursor(i, 0, Control::change_t::VISUAL);
+         intptr_t crow = control->get_row_no(Control::change_t::REAL);
+         if ( real_rows_being_visual.size() > 0 )
+         {
+            if ( real_rows_being_visual[real_rows_being_visual.size() - 1] != crow )
+            {
+               real_rows_being_visual.push_back(crow);
+               _debug << "loop: inserting into real_rows_being_visual: " << crow << "\n";
+            }
+         }
+         else
+         {
+            real_rows_being_visual.push_back(crow);
+            _debug << "loop: inserting first into real_rows_being_visual: " << crow << "\n";
+         }
+      }
+      auto _rows = control->rows(Control::REAL, real_rows_being_visual[0], real_rows_being_visual[real_rows_being_visual.size() - 1]);
       for ( auto current_mode : control->get_modes() )
       {
          _rows = current_mode->syntax_highlight(_rows);
       }
+      if ( real_rows_being_visual.size() > 0 )
+      {
+         _debug << "loop: use insert_visual_rows\n";
+         control->insert_visual_rows(_rows, real_rows_being_visual[0]); 
+      }
+      control->wrap_content();
+      _debug << "loop: get visual rows\n";
+      _rows = control->rows(Control::VISUAL, view_row, view_row + height);
+      control->change_cursor(row_copy_, col_copy_, Control::REAL);
       view->update(_rows, view_col);
       intptr_t row, col;
       control->get_cursor_pos(row, col, Control::REAL);

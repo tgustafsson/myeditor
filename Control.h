@@ -6,6 +6,7 @@
 #include <tuple>
 #include <functional>
 #include "CommandHistory.h"
+#include <map>
 
 class Mode;
 
@@ -13,8 +14,8 @@ class Control
 {
 protected:
    std::shared_ptr<Model> m_model;
-   //std::shared_ptr<View> m_view;
    std::vector<std::shared_ptr<Mode>> m_modes;
+   std::map<intptr_t, std::shared_ptr<AttributedString>> m_map_real_row_to_visual_contents;
    bool m_execute;
    CommandHistory m_commandhistory;
    intptr_t m_real_row;
@@ -62,7 +63,8 @@ public:
    enum change_t
    {
       VISUAL,
-      REAL
+      REAL,
+      WITH_INSERTED_VISUAL_LINES
    };
    
    Control(std::shared_ptr<Model> m);
@@ -84,8 +86,9 @@ public:
    virtual std::shared_ptr<AttributedString> get_row(change_t t, intptr_t delta);
    virtual size_t get_row_no(change_t t);
    virtual size_t get_col(change_t t);
-   virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, size_t start_row, size_t end_row);
+   virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, intptr_t start_row, intptr_t end_row);
    virtual void convert_to(Control::change_t from, size_t row, size_t col, Control::change_t to, intptr_t& _row, intptr_t& _col);
+   virtual void insert_visual_rows(const std::vector<std::shared_ptr<AttributedString>>&, intptr_t start_row); 
 };
 
 extern size_t _number_key_presses;
