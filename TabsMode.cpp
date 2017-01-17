@@ -12,8 +12,10 @@ TabsMode::TabsMode(const KeyCords& keys, shared_ptr<Control> control, KeyCord::i
 vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_ptr<AttributedString>> rows) {
    _debug << "TabsMode\n";
    intptr_t row_nr, col;
-   intptr_t new_col = col;
-   m_control->get_cursor_pos(row_nr, col, Control::change_t::VISUAL);
+   intptr_t new_col = 0;
+   m_control->get_cursor_pos(row_nr, col, Control::change_t::REAL);
+   intptr_t view_row, view_col;
+   m_control->get_view(view_row, view_col);
    vector<shared_ptr<AttributedString>> ret;
    size_t r = 0;
    for (auto row : rows)
@@ -36,9 +38,10 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
             rcopy->erase(j, 1);
             for ( intptr_t length = 4 - (j % 4) - 1; length > 0; length-- )
             {
-               if ( row_nr == r )
+               _debug << "row_nr = " << row_nr << ", view_row = " << view_row << ", r = " << r << "\n";
+               if ( row_nr - view_row == r )
                {
-                  if ( j > col )
+                  if ( col > i)
                   {
                      new_col++;
                   }
@@ -54,7 +57,6 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
          }
          i++;
          j++;
-         r++;
       }
       if ( copy )
       {
@@ -63,6 +65,13 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
       {
          ret.push_back(row);
       }
+      r++; 
    }
+   m_delta_cursor_col = new_col;
+   _debug << "m_delta_cursor_col = " << m_delta_cursor_col << "\n";
    return ret;
+}
+
+intptr_t TabsMode::get_delta_col() const {
+   return m_delta_cursor_col;
 }

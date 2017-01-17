@@ -510,7 +510,7 @@ KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std
 }
 
 KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model, shared_ptr<View> file_select_view) {
-   loop(file_select_model, file_select_view, file_select_control);
+   loop(file_select_model, file_select_view, file_select_control, nullptr);
    //file_select_control->loop();
    auto path = file_select_model->get_row(0)->to_str();
    model->load(path);

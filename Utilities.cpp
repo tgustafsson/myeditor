@@ -9,7 +9,7 @@
 using namespace std;
 
 
-void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control, shared_ptr<TabsMode> tabsmode) {
    while ( control->get_execute() )
    {
       intptr_t width, height;
@@ -37,6 +37,7 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
             _debug << "loop: inserting first into real_rows_being_visual: " << crow << "\n";
          }
       }
+      control->change_cursor(row_copy_, col_copy_, Control::REAL); 
       auto _rows = control->rows(Control::REAL, real_rows_being_visual[0], real_rows_being_visual[real_rows_being_visual.size() - 1]);
       for ( auto current_mode : control->get_modes() )
       {
@@ -50,13 +51,27 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       control->wrap_content();
       _debug << "loop: get visual rows\n";
       _rows = control->rows(Control::VISUAL, view_row, view_row + height);
-      control->change_cursor(row_copy_, col_copy_, Control::REAL);
       view->update(_rows, view_col);
       intptr_t row, col;
       control->get_cursor_pos(row, col, Control::REAL);
       intptr_t row_copy = row, col_copy = col, view_row_copy = view_row, view_col_copy = view_col;
-      control->get_cursor_pos(row, col, Control::VISUAL); 
-      view->change_visual_cursor(row, col);
+      intptr_t deltacol = 0; 
+      intptr_t deltarow = 0;
+      intptr_t new_current_row, new_current_col; 
+      if ( tabsmode != nullptr )
+      {
+         intptr_t current_visual_row, current_visual_col;
+         control->get_cursor_pos(current_visual_row, current_visual_col, Control::VISUAL);
+         deltacol = tabsmode->get_delta_col();
+         control->change_cursor(row, col + deltacol, Control::REAL);
+         control->get_cursor_pos(new_current_row, new_current_col, Control::VISUAL); 
+         control->change_cursor(current_visual_row, current_visual_col, Control::VISUAL);
+      }
+      else
+      {
+         control->get_cursor_pos(new_current_row, new_current_col, Control::VISUAL); 
+      }
+      view->change_visual_cursor(new_current_row, new_current_col);
       view->refresh();
       auto func = control->get_modes()[0]->get_key();
       auto hist = bind(func, model, view, control);

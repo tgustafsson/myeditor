@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
    main_control->add_mode(selection_mode);
    main_control->add_mode(tabs_mode);
    //main_control->loop();
-   loop(m, main_view, main_control);
+   loop(m, main_view, main_control, dynamic_pointer_cast<TabsMode>(tabs_mode));
    incremental_search_control->exit();
    file_select_control->exit();
    main_view.reset(new DummyView);

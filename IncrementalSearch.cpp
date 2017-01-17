@@ -16,7 +16,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    m_view = view;
    while ( m_run_loop )
    {
-      loop(incremental_search_model, incremental_search_view, incremental_search_control);
+      loop(incremental_search_model, incremental_search_view, incremental_search_control, nullptr);
       //incremental_search_control->loop();
       if ( !m_quitting )
       {
