@@ -7,6 +7,7 @@
 #include <locale>
 #include "Selection.h"
 #include "Debug.h"
+#include <deque>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #include <boost/filesystem/operations.hpp>
@@ -23,6 +24,68 @@ string wstring_to_string(const wstring& ws) {
    return ret;
 }
 
+template <typename Container = std::string,
+          typename CharT = char,
+          typename Traits = std::char_traits<char>>
+auto read_file_into_memory(
+    std::basic_ifstream<CharT, Traits>& in,
+    typename Container::allocator_type alloc = {})
+{
+  // With an is_contiguous traits type, this can be
+  // generalized to *any* container, and much easier.
+  // You could do this with enable-if, too, to
+  // to completely remove this function from the
+  // overload set if the container type is wrong...
+  // but i think static assert is more appropriate in
+  // this context, and it will give more readable
+  // errors.
+  static_assert(
+    // Allow only strings...
+    std::is_same<Container, std::basic_string<CharT,
+      Traits,
+      typename Container::allocator_type>>::value ||
+      // ... and vectors of the plain, signed, and
+      // unsigned flavours of CharT.
+      std::is_same<Container, std::vector<CharT,
+        typename Container::allocator_type>>::value ||
+      std::is_same<Container, std::vector<
+        std::make_unsigned_t<CharT>,
+        typename Container::allocator_type>>::value ||
+      std::is_same<Container, std::vector<
+        std::make_signed_t<CharT>,
+        typename Container::allocator_type>>::value,
+    "only strings and vectors of ((un)signed) CharT allowed");
+  // You could also add other static assertions, like
+  // confirming that the char type is trivially
+  // copyable.
+   
+  auto const start_pos = in.tellg();
+   
+  in.ignore(
+    std::numeric_limits<std::streamsize>::max());
+  auto const char_count = in.gcount();
+   
+  in.seekg(start_pos);
+   
+  auto container = Container(std::move(alloc));
+  container.resize(char_count);
+   
+  if (0 != container.size())
+  {
+    // reinterpret_cast is necessary if we want to
+    // allow vector<char>, vector<unsigned char> (and
+    // vector<signed char>, i guess). It's safe because
+    // the enable-if guarantees that we're just dealing
+    // with signed/unsigned variants.
+    // Though if you're paranoid, you can put some
+    // static asserts in to confirm this.
+    in.read(reinterpret_cast<CharT*>(&container[0]),
+      container.size());
+  }
+   
+  return container;
+}
+
 void Model::load() {
    if ( boost::filesystem::exists(boost::filesystem::path(m_path)) )
    {
@@ -31,46 +94,62 @@ void Model::load() {
    #else
       wstring temp = m_path;
    #endif
-      std::wifstream wif(temp, ios_base::openmode::_S_bin);
-   #ifdef _MSC_VER
-      wif.imbue(locale(locale::empty(), new codecvt_utf8<wchar_t>));
-      m_encoding = encoding::UTF8;
-   #endif
+      std::ifstream _in(temp, ios_base::in | ios_base::binary);
+// #ifdef _MSC_VER
+//    wif.imbue(locale(locale::empty(), new codecvt_utf8<wchar_t>));
+//    m_encoding = encoding::UTF8;
+// #endif
       m_content.clear();
-      while ( !wif.eof() && !wif.fail() )
+      auto file = read_file_into_memory(_in);
+      wstring temp2;
+      for (auto c : file)
       {
-         auto line = make_shared<wstring>();
-         wchar_t curr = 0;
-         while ( !wif.eof() && !wif.eof() && curr != '\n' )
+         if ( c == '\n' )
          {
-            wif.read(&curr, 1);
-            line->append(&curr);
+            auto line = make_shared<AttributedString>(temp2);
+            m_content.push_back(line);
+            temp2.clear();
          }
-
-         //getline(wif, *line);
-         auto astring = make_shared<AttributedString>(line);
-         m_content.push_back(astring);
-      }
-      auto fail = wif.fail();
-      auto bad = wif.bad();
-      auto eof = wif.eof();
-      auto good = wif.good();
-      auto rdstate = wif.rdstate();
-      if ( eof && !fail )
-      {
-         m_content.clear();
-         std::wifstream wif2(temp);
-         m_encoding = encoding::ASCII;
-         while ( !wif2.eof() && !wif2.fail() )
+         else
          {
-            auto line = make_shared<wstring>();
-            getline(wif2, *line);
-            auto astring = make_shared<AttributedString>(line);
-            m_content.push_back(astring);
+            temp2.push_back(c);
          }
-         wif2.close();
       }
-      wif.close();
+//    auto file = read_stream_into_container(_in);
+//    while ( !wif.eof() && !wif.fail() )
+//    {
+//       auto line = make_shared<wstring>();
+//       wchar_t curr = 0;
+//       while ( !wif.eof() && !wif.eof() && curr != '\n' )
+//       {
+//          wif.read(&curr, 1);
+//          line->append(&curr);
+//       }
+//
+//       //getline(wif, *line);
+//       auto astring = make_shared<AttributedString>(line);
+//       m_content.push_back(astring);
+//    }
+//    auto fail = wif.fail();
+//    auto bad = wif.bad();
+//    auto eof = wif.eof();
+//    auto good = wif.good();
+//    auto rdstate = wif.rdstate();
+//    if ( eof && !fail )
+//    {
+//       m_content.clear();
+//       std::wifstream wif2(temp);
+//       m_encoding = encoding::ASCII;
+//       while ( !wif2.eof() && !wif2.fail() )
+//       {
+//          auto line = make_shared<wstring>();
+//          getline(wif2, *line);
+//          auto astring = make_shared<AttributedString>(line);
+//          m_content.push_back(astring);
+//       }
+//       wif2.close();
+//    }
+      _in.close();
    }
 }
 
