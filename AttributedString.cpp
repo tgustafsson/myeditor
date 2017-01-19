@@ -5,7 +5,6 @@
 using namespace std;
 
 AttributedString::AttributedString(shared_ptr<wstring> s) {
-   _debug << "AttributedString::AttributedString\n";
    m_valid_syntax_coloring = false;
    m_content = s;
    m_color.resize(s->length());
@@ -16,7 +15,6 @@ AttributedString::AttributedString(shared_ptr<wstring> s) {
 }
 
 AttributedString::AttributedString(const std::wstring& s) {
-   _debug << "AttributedString::AttributedString\n";
    m_valid_syntax_coloring = false;
    m_content = make_shared<wstring>(s);
    m_color.resize(s.length());
@@ -27,7 +25,6 @@ AttributedString::AttributedString(const std::wstring& s) {
 }
 
 AttributedString::AttributedString(const AttributedString& as) {
-   _debug << "AttributedString copy constructor\n";
    m_valid_syntax_coloring = as.m_valid_syntax_coloring;
    this->m_content = as.m_content;
    this->m_color = as.m_color;

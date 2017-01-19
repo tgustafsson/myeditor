@@ -28,13 +28,11 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
             if ( real_rows_being_visual[real_rows_being_visual.size() - 1] != crow )
             {
                real_rows_being_visual.push_back(crow);
-               _debug << "loop: inserting into real_rows_being_visual: " << crow << "\n";
             }
          }
          else
          {
             real_rows_being_visual.push_back(crow);
-            _debug << "loop: inserting first into real_rows_being_visual: " << crow << "\n";
          }
       }
       control->change_cursor(row_copy_, col_copy_, Control::REAL); 
@@ -45,11 +43,9 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       }
       if ( real_rows_being_visual.size() > 0 )
       {
-         _debug << "loop: use insert_visual_rows\n";
          control->insert_visual_rows(_rows, real_rows_being_visual[0]); 
       }
       control->wrap_content();
-      _debug << "loop: get visual rows\n";
       _rows = control->rows(Control::VISUAL, view_row, view_row + height);
       view->update(_rows, view_col);
       intptr_t row, col;
@@ -86,7 +82,7 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
 void assign_mode_based_on_extension(shared_ptr<Model> model, shared_ptr<Control> control)
 {
    auto extension = model->get_extension();
-   _debug << "assign_mode_based_on_extension: " << extension << "\n";
+   _debug << "extension: " << extension << "\n";
    if ( control->get_modes().size() == 0 )
    {
       control->get_modes().resize(1);

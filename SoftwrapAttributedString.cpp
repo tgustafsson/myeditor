@@ -9,7 +9,6 @@ SoftwrapAttributedString::SoftwrapAttributedString(std::shared_ptr<AttributedStr
    m_string = L"";
    m_offset = offset;
    m_width = width;
-   _debug << "SoftwrapAttributedString: content " << *(this->m_content) << ", offset " << m_offset << " m_width" << width << "\n";
 }
 
 const std::wstring& SoftwrapAttributedString::to_str() {

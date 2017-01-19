@@ -31,7 +31,6 @@ void SoftwrapControl::wrap_content() {
    m_map_soft_to_real.clear();
    m_map_real_to_soft.clear();
    auto _rows = rows(Control::WITH_INSERTED_VISUAL_LINES, 0, numeric_limits<intptr_t>::max());
-   _debug << "wrap_content: " << _rows.size() << "\n";
    for (auto c : _rows)
    {
       size_t j = 0;
@@ -46,7 +45,6 @@ void SoftwrapControl::wrap_content() {
       while ( j * m_width < c->length() );
       i++;
    }
-   _debug << "leave wrap_content\n";
 }
 
 void SoftwrapControl::change_cursor(intptr_t row, intptr_t col, change_t t) {

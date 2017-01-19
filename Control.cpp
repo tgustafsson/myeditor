@@ -194,10 +194,8 @@ vector<shared_ptr<Mode>>& Control::get_modes() {
 void Control::insert_visual_rows(const vector<shared_ptr<AttributedString>>& r, intptr_t start_row) {
    for ( intptr_t i = 0; i < r.size(); i++, start_row++)
    {
-      _debug << "insert_visual_rows: map " << start_row << " to " << r[i]->to_str() << "\n";
       m_map_real_row_to_visual_contents[start_row] = r[i];
    }
-   _debug << "leave insert_visual_rows\n";
 }
 
 KeyCord::command_return_t my_exit(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {

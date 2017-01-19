@@ -1,5 +1,6 @@
 #include "LatexMode.h"
 #include <regex>
+#include "Debug.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ LatexMode::LatexMode(const KeyCords& keys, std::shared_ptr<Control> control, Key
 
 std::vector<std::shared_ptr<AttributedString>> LatexMode::syntax_highlight(std::vector<std::shared_ptr<AttributedString>> rows)
 {
+   _debug << "latex mode\n";
 	vector<shared_ptr<AttributedString>> ret;
 	for (auto r : rows)
 	{

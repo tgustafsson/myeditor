@@ -2,15 +2,15 @@
 #include "Control.h"
 #include "Debug.h"
 #include <memory>
+#include <cassert>
 
 using namespace std;
 
-TabsMode::TabsMode(const KeyCords& keys, shared_ptr<Control> control, KeyCord::insert_func insert): Mode(keys, control, insert)
+TabsMode::TabsMode(const KeyCords& keys, shared_ptr<Control> control, KeyCord::insert_func insert): Mode(keys, control, insert), m_tabsize(4)
 {
 }
 
 vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_ptr<AttributedString>> rows) {
-   _debug << "TabsMode\n";
    intptr_t row_nr, col;
    intptr_t new_col = 0;
    m_control->get_cursor_pos(row_nr, col, Control::change_t::REAL);
@@ -30,15 +30,14 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
          {
             if ( !copy )
             {
-               _debug << "Create copy\n";
                rcopy = row->deep_copy();
                copy = true;
             }
-            _debug << "Erase " << get<0>((*rcopy)[j])<< "\n";
+            auto what_is_j = (*rcopy)[j];
+            assert(get<0>(what_is_j) == '\t');
             rcopy->erase(j, 1);
-            for ( intptr_t length = 4 - (j % 4) - 1; length > 0; length-- )
+            for ( intptr_t length = m_tabsize - (j % m_tabsize); length > 0; length-- )
             {
-               _debug << "row_nr = " << row_nr << ", view_row = " << view_row << ", r = " << r << "\n";
                if ( row_nr - view_row == r )
                {
                   if ( col > i)
@@ -47,16 +46,16 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
                   }
                }
                auto b = rcopy->begin();
-               _debug << "insert at " << j << "\n";
                rcopy->insert(b + j++, ' ');
                auto np = (*rcopy)[j - 1];
                get<1>(np) = AttributedString::color::TAB;
             }
-//          _debug << "TabsMode row: " << row->to_str() << "\n";
-            _debug << "TabsMode rcopy: |" << rcopy->to_str()<< "|\n";
+         }
+         else
+         {
+            j++;
          }
          i++;
-         j++;
       }
       if ( copy )
       {
@@ -67,11 +66,25 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
       }
       r++; 
    }
-   m_delta_cursor_col = new_col;
-   _debug << "m_delta_cursor_col = " << m_delta_cursor_col << "\n";
+   if ( new_col > 0 )
+   {
+      m_delta_cursor_col = new_col - 1;
+   }
+   else
+   {
+      m_delta_cursor_col = 0;
+   }
    return ret;
 }
 
 intptr_t TabsMode::get_delta_col() const {
    return m_delta_cursor_col;
+}
+
+void TabsMode::set_tabsize(char tabsize) {
+   m_tabsize = tabsize;
+}
+
+char TabsMode::get_tabsize() const {
+   return m_tabsize;
 }

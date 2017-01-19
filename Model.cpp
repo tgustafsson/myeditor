@@ -31,7 +31,7 @@ void Model::load() {
    #else
       wstring temp = m_path;
    #endif
-      std::wifstream wif(temp);
+      std::wifstream wif(temp, ios_base::openmode::_S_bin);
    #ifdef _MSC_VER
       wif.imbue(locale(locale::empty(), new codecvt_utf8<wchar_t>));
       m_encoding = encoding::UTF8;
@@ -40,7 +40,14 @@ void Model::load() {
       while ( !wif.eof() && !wif.fail() )
       {
          auto line = make_shared<wstring>();
-         getline(wif, *line);
+         wchar_t curr = 0;
+         while ( !wif.eof() && !wif.eof() && curr != '\n' )
+         {
+            wif.read(&curr, 1);
+            line->append(&curr);
+         }
+
+         //getline(wif, *line);
          auto astring = make_shared<AttributedString>(line);
          m_content.push_back(astring);
       }
@@ -182,6 +189,5 @@ std::wstring Model::get_extension() const {
    namespace fs = boost::filesystem;
    fs::path p = fs::path(m_path);
    auto ret = p.extension().wstring(); 
-   _debug << "get_extension: " << ret << "\n";
    return ret;
 }
