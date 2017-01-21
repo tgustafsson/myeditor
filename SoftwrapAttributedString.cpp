@@ -29,11 +29,11 @@ size_t SoftwrapAttributedString::length() const {
    return size();
 }
 
-AttributedString::const_iterator SoftwrapAttributedString::begin() {
+AttributedString::iterator SoftwrapAttributedString::begin() {
    return AttributedString::begin() + m_offset;
 }
 
-AttributedString::const_iterator SoftwrapAttributedString::end() {
+AttributedString::iterator SoftwrapAttributedString::end() {
    if ( m_offset + m_width > m_content->length() ) return m_content->end();
    else return m_content->begin() + m_offset + m_width;
 }
@@ -52,11 +52,11 @@ void SoftwrapAttributedString::append(const std::wstring& ws) {
    m_as->invalidate_syntax_coloring();
 }
 
-void SoftwrapAttributedString::insert(AttributedString::const_iterator pos, wchar_t wc) {
+void SoftwrapAttributedString::insert(AttributedString::iterator pos, wchar_t wc) {
    m_as->insert(pos, wc);
 }
 
-void SoftwrapAttributedString::insert(AttributedString::const_iterator pos, std::wstring::iterator begin, std::wstring::iterator end) {
+void SoftwrapAttributedString::insert(AttributedString::iterator pos, std::wstring::iterator begin, std::wstring::iterator end) {
    m_as->insert(pos, begin, end);
 }
 

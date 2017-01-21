@@ -67,11 +67,11 @@ size_t AttributedString::size() const {
    return m_content->length();
 }
 
-AttributedString::const_iterator AttributedString::begin() {
+AttributedString::iterator AttributedString::begin() {
    return m_content->begin();
 }
 
-AttributedString::const_iterator AttributedString::end() {
+AttributedString::iterator AttributedString::end() {
    return m_content->end();
 }
 
@@ -95,19 +95,19 @@ void AttributedString::append(const std::wstring& ws) {
    m_valid_syntax_coloring = false;
 }
 
-void AttributedString::insert(const_iterator pos, wchar_t wc) {
-   m_content->insert(pos, wc);
+void AttributedString::insert(iterator pos, wchar_t wc) {
+   m_content->insert(pos, 1, wc);
    m_color.resize(m_content->size());
    m_valid_syntax_coloring = false;
 }
 
-void AttributedString::insert(const_iterator pos, wstring::iterator begin, wstring::iterator end) {
+void AttributedString::insert(iterator pos, wstring::iterator begin, wstring::iterator end) {
    m_content->insert(pos, begin, end);
    m_color.resize(m_content->length());
    m_valid_syntax_coloring = false;
 }
 
-void AttributedString::insert(const_iterator pos, std::wstring::const_iterator begin, std::wstring::const_iterator end) {
+void AttributedString::insert(iterator pos, std::wstring::const_iterator begin, std::wstring::const_iterator end) {
    m_content->insert(pos, begin, end);
    m_color.resize(m_content->length());
    m_valid_syntax_coloring = false;

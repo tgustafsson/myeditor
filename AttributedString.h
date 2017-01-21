@@ -30,8 +30,10 @@ protected:
 public:
    AttributedString(const AttributedString& as);
 public:
-   typedef std::wstring::iterator iterator;
-   typedef std::wstring::const_iterator const_iterator;
+//   typedef std::wstring::iterator iterator;
+//   typedef std::wstring::const_iterator const_iterator;
+   using iterator = std::wstring::iterator;
+   using const_iterator = std::wstring::const_iterator;
    AttributedString(std::shared_ptr<std::wstring> s);
    AttributedString(const std::wstring& s);
    //AttributedString(const AttributedString& as);
@@ -44,14 +46,14 @@ public:
    void set_valid_syntax_coloring();
    virtual size_t size() const;
    virtual size_t length() const;
-   virtual const_iterator begin();
-   virtual const_iterator end();
+   virtual iterator begin();
+   virtual iterator end();
    virtual wchar_t at(size_t pos) const;
    virtual void append(size_t pos, wchar_t wc);
    virtual void append(const std::wstring& ws);
-   virtual void insert(const_iterator pos, wchar_t wc);
-   virtual void insert(const_iterator pos, std::wstring::iterator begin, std::wstring::iterator end);
-   virtual void insert(const_iterator pos, std::wstring::const_iterator begin, std::wstring::const_iterator end);
+   virtual void insert(iterator pos, wchar_t wc);
+   virtual void insert(iterator pos, std::wstring::iterator begin, std::wstring::iterator end);
+   virtual void insert(iterator pos, std::wstring::const_iterator begin, std::wstring::const_iterator end);
    virtual void erase(size_t off, size_t count);
    virtual std::wstring substr(size_t off = 0, size_t len = std::string::npos) const;
 // AttributedString& operator=(const std::wstring& rhs);
