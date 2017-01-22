@@ -163,7 +163,7 @@ vector<shared_ptr<AttributedString>> Model::rows(intptr_t start, intptr_t stop) 
       stop = m_content.size();
    }
    vector<shared_ptr<AttributedString>> ret;
-   for ( intptr_t i = start; i < stop && i < m_content.size(); i++ )
+   for ( intptr_t i = start; i < stop && i < static_cast<intptr_t>(m_content.size()); i++ )
    {
       ret.push_back(m_content[i]);
    }

@@ -8,34 +8,44 @@
 
 using namespace std;
 
+vector<intptr_t> get_real_rows_being_visual(shared_ptr<View> view, shared_ptr<Control> control)
+{
+   intptr_t width, height;
+   view->get_win_prop(width, height); 
+   intptr_t view_row, view_col;
+   control->get_view(view_row, view_col); 
+   intptr_t row_copy_, col_copy_;
+   control->get_cursor_pos(row_copy_, col_copy_, Control::change_t::REAL); 
+   vector<intptr_t> real_rows_being_visual;
+   for ( int i = 0; i < height; i++ )
+   {
+      control->change_cursor(i, 0, Control::change_t::VISUAL);
+      intptr_t crow = control->get_row_no(Control::change_t::REAL);
+      if ( real_rows_being_visual.size() > 0 )
+      {
+         if ( real_rows_being_visual[real_rows_being_visual.size() - 1] != crow )
+         {
+            real_rows_being_visual.push_back(crow);
+         }
+      } else
+      {
+         real_rows_being_visual.push_back(crow);
+      }
+   }
+   control->change_cursor(row_copy_, col_copy_, Control::REAL); 
+   return real_rows_being_visual;
+}
 
 void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control, shared_ptr<TabsMode> tabsmode) {
    while ( control->get_execute() )
    {
       intptr_t width, height;
-      view->get_win_prop(width, height);
+      view->get_win_prop(width, height); 
       intptr_t view_row, view_col;
       control->get_view(view_row, view_col);
-      intptr_t row_copy_, col_copy_;
-      control->get_cursor_pos(row_copy_, col_copy_, Control::change_t::REAL);
-      vector<intptr_t> real_rows_being_visual;
-      for ( int i = 0; i < height; i++)
-      {
-         control->change_cursor(i, 0, Control::change_t::VISUAL);
-         intptr_t crow = control->get_row_no(Control::change_t::REAL);
-         if ( real_rows_being_visual.size() > 0 )
-         {
-            if ( real_rows_being_visual[real_rows_being_visual.size() - 1] != crow )
-            {
-               real_rows_being_visual.push_back(crow);
-            }
-         }
-         else
-         {
-            real_rows_being_visual.push_back(crow);
-         }
-      }
-      control->change_cursor(row_copy_, col_copy_, Control::REAL); 
+    
+      auto real_rows_being_visual = get_real_rows_being_visual(view, control);
+ 
       auto _rows = control->rows(Control::REAL, real_rows_being_visual[0], real_rows_being_visual[real_rows_being_visual.size() - 1]);
       for ( auto current_mode : control->get_modes() )
       {
@@ -52,7 +62,6 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       control->get_cursor_pos(row, col, Control::REAL);
       intptr_t row_copy = row, col_copy = col, view_row_copy = view_row, view_col_copy = view_col;
       intptr_t deltacol = 0; 
-      intptr_t deltarow = 0;
       intptr_t new_current_row, new_current_col; 
       if ( tabsmode != nullptr )
       {

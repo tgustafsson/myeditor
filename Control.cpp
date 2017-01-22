@@ -32,11 +32,13 @@ shared_ptr<AttributedString> Control::get_row(Control::change_t t, intptr_t delt
 size_t Control::get_row_no(Control::change_t t) {
    if ( t == Control::REAL ) return m_real_row + m_view_row;
    else if ( t == Control::VISUAL ) return m_real_row + m_view_row;
+   throw (exception());
 }
 
 size_t Control::get_col(Control::change_t t) {
    if ( t == Control::REAL ) return m_real_col + m_view_col;
    else if ( t == Control::VISUAL ) return m_real_col + m_view_col;
+   throw (exception());
 }
 
 Control::Control(shared_ptr<Model> m) : m_model(m), m_execute(true) {
@@ -761,7 +763,7 @@ void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, share
    for ( size_t i = r; i < r + lines.size(); i++ )
    {
       auto line = model->get_row(i);
-      if ( i == r )
+      if ( static_cast<intptr_t>(i) == r )
       {
          auto& string_to_paste = lines[i - r];
          line->insert(line->begin() + c, string_to_paste.begin(), string_to_paste.end());

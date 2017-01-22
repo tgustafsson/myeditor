@@ -75,7 +75,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search_insert(std::s
    intptr_t start = control->get_col(Control::REAL);
    if ( start >= 0 )
    {
-      while ( s->length() < start ) s->append(1, L' ');
+      while ( static_cast<intptr_t>(s->length()) < start ) s->append(1, L' ');
       auto it = s->begin();
       s->insert(it + start, wc);
       control->change(0, Control::REAL, 1, Control::REAL, model, view, control);
@@ -91,7 +91,6 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search_enter(std::sh
 }
 
 KeyCord::command_return_t IncrementalSearch::my_incremental_search_again(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
-   intptr_t row, col;
    m_delta_col = 1;
    control->exit();
    return make_tuple(&my_empty_undo, false);

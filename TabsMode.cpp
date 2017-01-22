@@ -17,13 +17,13 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
    intptr_t view_row, view_col;
    m_control->get_view(view_row, view_col);
    vector<shared_ptr<AttributedString>> ret;
-   size_t r = 0;
+   intptr_t r = 0;
    for (auto row : rows)
    {
       shared_ptr<AttributedString> rcopy;
-      size_t i = 0, j = 0;
+      intptr_t i = 0, j = 0;
       bool copy = false;
-      while ( i < row->length() )
+      while ( i < static_cast<intptr_t>(row->length()) )
       {
          auto c = (*row)[i];
          if ( get<0>(c) == '\t' )
@@ -38,7 +38,7 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
             rcopy->erase(j, 1);
             for ( intptr_t length = m_tabsize - (j % m_tabsize); length > 0; length-- )
             {
-               if ( row_nr - view_row == r )
+               if ( (row_nr - view_row) == r )
                {
                   if ( col > i)
                   {

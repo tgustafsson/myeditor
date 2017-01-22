@@ -22,6 +22,7 @@ shared_ptr<AttributedString> SoftwrapControl::get_row(change_t t, intptr_t delta
    {
       return m_softwrap[m_visual_row + m_view_row];
    }
+   return make_shared<AttributedString>(wstring());
 }
 
 void SoftwrapControl::wrap_content() {
@@ -56,7 +57,7 @@ void SoftwrapControl::change_cursor(intptr_t row, intptr_t col, change_t t) {
       m_visual_col = col % m_width;
    } else if ( t == Control::VISUAL )
    {
-      if ( col >= m_width ) col = m_width - 1;
+      if ( col >= static_cast<intptr_t>(m_width) ) col = m_width - 1;
       m_real_row = get<0>(m_map_soft_to_real[row]);
       m_real_col = get<1>(m_map_soft_to_real[row]) * m_width + col;
       m_visual_row = row;
@@ -71,7 +72,7 @@ void SoftwrapControl::change_view(intptr_t row, intptr_t col, size_t number_of_l
       m_visual_row = m_map_real_to_soft[m_real_row] + (m_view_col + m_real_col) / m_width;
       m_visual_col = m_real_col % m_width;
    }
-   if ( row >= 0 && row < number_of_lines )
+   if ( row >= 0 && row < static_cast<intptr_t>(number_of_lines) )
    {
       m_view_row = row;
    }
@@ -98,6 +99,7 @@ size_t SoftwrapControl::get_row_no(Control::change_t t) {
    {
       return m_visual_row + m_view_row;
    }
+   throw(exception());
 }
 
 size_t SoftwrapControl::get_col(Control::change_t t) {
@@ -108,6 +110,7 @@ size_t SoftwrapControl::get_col(Control::change_t t) {
    {
       return m_visual_col;
    }
+   throw (exception());
 }
 
 vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, intptr_t start_row, intptr_t end_row) {
@@ -117,7 +120,7 @@ vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, 
    } else if ( t == Control::VISUAL )
    {
       vector<shared_ptr<AttributedString>> ret;
-      for ( intptr_t i = start_row; i <= end_row && i < m_softwrap.size(); i++ )
+      for ( intptr_t i = start_row; i <= end_row && i < static_cast<intptr_t>(m_softwrap.size()); i++ )
       {
          ret.push_back(m_softwrap[i]);
       }
@@ -127,5 +130,6 @@ vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, 
    {
       return Control::rows(t, start_row, end_row);
    }
+   throw (exception());
 }
 

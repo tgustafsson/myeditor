@@ -14,7 +14,6 @@ using namespace std;
 
 tuple<Control::keys, int> CursesControl::get_key() const {
    _number_key_presses++;
-   Control::keys ret_key = Control::keys::UNDEFINED;
    int ret_code = getch();
    _debug << "code is " << ret_code << "\n";
 #ifdef _MSC_VER
