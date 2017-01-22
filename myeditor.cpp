@@ -122,8 +122,6 @@ int main(int argc, char *argv[]) {
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_X, Control::keys::CTRL_S }, &my_save));
    auto open_file = bind(my_open_file, placeholders::_1, placeholders::_2, placeholders::_3, file_select_control, file_select_model, file_select_view);
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_X, Control::keys::CTRL_F }, open_file));
-   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model, incremental_search_view);
-   _main_cords.push_back(KeyCord({ Control::keys::CTRL_S }, incremental_search));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_K }, &my_kut_line));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_Y }, &my_paste_from_clipboard));
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_SPACE }, &my_start_selection));
@@ -146,7 +144,9 @@ int main(int argc, char *argv[]) {
    shared_ptr<Mode> ism_mode = make_shared<IncrementalSearchMode>(_main_cords, main_control, &my_insert);
    //const KeyCords& keys, std::shared_ptr<Control> control, std::shared_ptr<Model> model, std::shared_ptr<View> view, KeyCord::insert_func insert
    shared_ptr<Mode> selection_mode = make_shared<SelectionMode>(_main_cords, main_control, m, main_view, &my_insert);
-   shared_ptr<Mode> tabs_mode = make_shared<TabsMode>(_main_cords, main_control, &my_insert);
+   shared_ptr<TabsMode> tabs_mode = make_shared<TabsMode>(_main_cords, main_control, &my_insert); 
+   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model, incremental_search_view, tabs_mode);
+   _main_cords.push_back(KeyCord({ Control::keys::CTRL_S }, incremental_search)); 
    main_control->add_mode(latex_mode);
    assign_mode_based_on_extension(m, main_control);
    main_control->add_mode(ism_mode);

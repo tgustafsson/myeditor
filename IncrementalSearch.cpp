@@ -4,7 +4,7 @@
 
 using namespace std;
 
-KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> incremental_search_control, std::shared_ptr<Model> incremental_search_model, std::shared_ptr<View> incremental_search_view) {
+KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> incremental_search_control, std::shared_ptr<Model> incremental_search_model, std::shared_ptr<View> incremental_search_view, shared_ptr<TabsMode> tabs_mode) {
    intptr_t row, col, width, height, view_row, view_col;
    control->get_cursor_pos(row, col, Control::REAL);
    view->get_win_prop(width, height);
@@ -47,20 +47,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          m_delta_col = 0;
          control->get_view(view_row, view_col);
          control->get_cursor_pos(row, col, Control::VISUAL);
-         vector<shared_ptr<AttributedString>> _rows;
-         if ( m_start_row <= row && row <= m_start_row + height ) _rows = control->rows(Control::change_t::VISUAL, m_start_view_row, m_start_view_row + height);
-         else
-         {
-            //control->change_view(row - height / 2, view_col, height);
-            _rows = control->rows(Control::change_t::VISUAL, row, row + height);
-         }
-         IncrementalSearchMode& ism = dynamic_cast<IncrementalSearchMode&>(*(control->get_modes()[1]));
-         ism.set_search(search_string); 
-         for (auto current_mode : control->get_modes() )
-         {
-            _rows = current_mode->syntax_highlight(_rows);
-         }
-         view->update(_rows, view_col);
+         update_view(m_model, m_view, control, tabs_mode);
       }
       incremental_search_control->set_execute();
 
