@@ -5,6 +5,8 @@
 #include "CppMode.h"
 #include "FundamentalMode.h"
 #include "Debug.h"
+#include "TabsMode.h"
+#include <type_traits>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ vector<intptr_t> get_real_rows_being_visual(shared_ptr<View> view, shared_ptr<Co
       intptr_t crow = control->get_row_no(Control::change_t::REAL);
       if ( real_rows_being_visual.size() > 0 )
       {
-         if ( real_rows_being_visual[real_rows_being_visual.size() - 1] != crow )
+         if ( real_rows_being_visual[real_rows_being_visual.size() - 1] < crow )
          {
             real_rows_being_visual.push_back(crow);
          }
@@ -36,7 +38,13 @@ vector<intptr_t> get_real_rows_being_visual(shared_ptr<View> view, shared_ptr<Co
    return real_rows_being_visual;
 }
 
-void update_view(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control, shared_ptr<TabsMode> tabsmode) {
+void update_view(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
+   shared_ptr<TabsMode> tabsmode = nullptr;
+   if ( control->get_modes().size() > Control::TABS_MODE )
+   {
+      shared_ptr<Mode> t = control->get_mode(Control::TABS_MODE);
+      tabsmode = dynamic_pointer_cast<TabsMode>(t);
+   }
    intptr_t width, height;
    view->get_win_prop(width, height);
    intptr_t view_row, view_col;
@@ -77,7 +85,7 @@ void update_view(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Cont
    view->refresh();
 }
 
-void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control, shared_ptr<TabsMode> tabsmode) {
+void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
    while ( control->get_execute() )
    {
       intptr_t view_row, view_col;
@@ -85,7 +93,7 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       intptr_t row, col;
       control->get_cursor_pos(row, col, Control::REAL);
       intptr_t row_copy = row, col_copy = col, view_row_copy = view_row, view_col_copy = view_col; 
-      update_view(model, view, control, tabsmode);
+      update_view(model, view, control);
       auto func = control->get_modes()[0]->get_key();
       auto hist = bind(func, model, view, control);
       auto undo = func(model, view, control);
@@ -99,7 +107,6 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
 void assign_mode_based_on_extension(shared_ptr<Model> model, shared_ptr<Control> control)
 {
    auto extension = model->get_extension();
-   _debug << "extension: " << extension << "\n";
    if ( control->get_modes().size() == 0 )
    {
       control->get_modes().resize(1);

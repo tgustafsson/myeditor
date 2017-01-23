@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
    //const KeyCords& keys, std::shared_ptr<Control> control, std::shared_ptr<Model> model, std::shared_ptr<View> view, KeyCord::insert_func insert
    shared_ptr<Mode> selection_mode = make_shared<SelectionMode>(_main_cords, main_control, m, main_view, &my_insert);
    shared_ptr<TabsMode> tabs_mode = make_shared<TabsMode>(_main_cords, main_control, &my_insert); 
-   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model, incremental_search_view, tabs_mode);
+   auto incremental_search = bind(&IncrementalSearch::my_incremental_search, ref(is), placeholders::_1, placeholders::_2, placeholders::_3, incremental_search_control, incremental_search_model, incremental_search_view);
    _main_cords.push_back(KeyCord({ Control::keys::CTRL_S }, incremental_search)); 
    main_control->add_mode(latex_mode);
    assign_mode_based_on_extension(m, main_control);
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
    main_control->add_mode(selection_mode);
    main_control->add_mode(tabs_mode);
    //main_control->loop();
-   loop(m, main_view, main_control, dynamic_pointer_cast<TabsMode>(tabs_mode));
+   loop(m, main_view, main_control);
    incremental_search_control->exit();
    file_select_control->exit();
    main_view.reset(new DummyView);

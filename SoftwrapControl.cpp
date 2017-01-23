@@ -116,7 +116,8 @@ size_t SoftwrapControl::get_col(Control::change_t t) {
 vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, intptr_t start_row, intptr_t end_row) {
    if ( t == Control::REAL )
    {
-      return Control::rows(t, start_row, end_row);
+      auto ret = Control::rows(t, start_row, end_row); 
+      return ret;
    } else if ( t == Control::VISUAL )
    {
       vector<shared_ptr<AttributedString>> ret;
@@ -128,7 +129,8 @@ vector<shared_ptr<AttributedString>> SoftwrapControl::rows(Control::change_t t, 
    }
    else if ( t == Control::WITH_INSERTED_VISUAL_LINES )
    {
-      return Control::rows(t, start_row, end_row);
+      auto ret = Control::rows(t, start_row, end_row); 
+      return ret;
    }
    throw (exception());
 }

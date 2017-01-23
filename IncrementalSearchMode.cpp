@@ -1,5 +1,6 @@
 #include "IncrementalSearchMode.h"
 #include "Control.h"
+#include "Debug.h"
 #include <tuple>
 
 using namespace std;
@@ -8,6 +9,8 @@ IncrementalSearchMode::IncrementalSearchMode(const KeyCords& keys, std::shared_p
 }
 
 vector<shared_ptr<AttributedString>> IncrementalSearchMode::syntax_highlight(vector<shared_ptr<AttributedString>> rows) {
+   _debug << "IncrementalSearchMode::syntax_highlight. rows.size() = " << rows.size() << "\n";
+   _debug << "m_search = " << m_search << "\n";
    if ( m_search != L"" )
    {
       intptr_t row, col;

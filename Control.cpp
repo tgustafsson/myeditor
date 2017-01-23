@@ -193,6 +193,11 @@ vector<shared_ptr<Mode>>& Control::get_modes() {
    return m_modes;
 }
 
+shared_ptr<Mode> Control::get_mode(size_t i)
+{
+   return m_modes[i];
+}
+
 void Control::insert_visual_rows(const vector<shared_ptr<AttributedString>>& r, intptr_t start_row) {
    for ( intptr_t i = 0; i < r.size(); i++, start_row++)
    {
@@ -510,7 +515,7 @@ KeyCord::command_return_t my_file_select_enter(std::shared_ptr<Model> model, std
 }
 
 KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> file_select_control, std::shared_ptr<Model> file_select_model, shared_ptr<View> file_select_view) {
-   loop(file_select_model, file_select_view, file_select_control, nullptr);
+   loop(file_select_model, file_select_view, file_select_control);
    //file_select_control->loop();
    auto path = file_select_model->get_row(0)->to_str();
    model->load(path);

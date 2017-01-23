@@ -13,6 +13,8 @@ public:
    SoftwrapAttributedString(std::shared_ptr<AttributedString> s, size_t offset, size_t width);
    virtual const std::wstring& to_str();
    virtual std::tuple<const wchar_t&, AttributedString::color&> operator [](size_t index);
+   virtual std::shared_ptr<AttributedString> deep_copy() const;
+   virtual std::shared_ptr<AttributedString> shallow_copy() const; 
    virtual size_t size() const;
    virtual size_t length() const;
    virtual AttributedString::iterator begin();

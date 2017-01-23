@@ -11,6 +11,20 @@ SoftwrapAttributedString::SoftwrapAttributedString(std::shared_ptr<AttributedStr
    m_width = width;
 }
 
+shared_ptr<AttributedString> SoftwrapAttributedString::deep_copy() const
+{
+   shared_ptr<AttributedString> as = this->m_as->deep_copy();
+   shared_ptr<SoftwrapAttributedString> ret = make_shared<SoftwrapAttributedString>(as, this->m_offset, this->m_width);
+   return ret;
+}
+
+shared_ptr<AttributedString> SoftwrapAttributedString::shallow_copy() const
+{
+   shared_ptr<AttributedString> as = this->m_as->shallow_copy();
+   shared_ptr<AttributedString> ret = make_shared<SoftwrapAttributedString>(as, this->m_offset, this->m_width);
+   return ret;
+}
+
 const std::wstring& SoftwrapAttributedString::to_str() {
    m_string = m_content->substr(m_offset, m_width);
    return static_cast<const wstring&>(m_string);

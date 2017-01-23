@@ -37,8 +37,8 @@ public:
    AttributedString(std::shared_ptr<std::wstring> s);
    AttributedString(const std::wstring& s);
    //AttributedString(const AttributedString& as);
-   std::shared_ptr<AttributedString> deep_copy() const; 
-   std::shared_ptr<AttributedString> shallow_copy() const; 
+   virtual std::shared_ptr<AttributedString> deep_copy() const; 
+   virtual std::shared_ptr<AttributedString> shallow_copy() const; 
    virtual const std::wstring& to_str();
    virtual std::tuple<const wchar_t&, color&> operator [](size_t index);
    void invalidate_syntax_coloring();

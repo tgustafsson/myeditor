@@ -4,7 +4,7 @@
 
 using namespace std;
 
-KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> incremental_search_control, std::shared_ptr<Model> incremental_search_model, std::shared_ptr<View> incremental_search_view, shared_ptr<TabsMode> tabs_mode) {
+KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, std::shared_ptr<Control> incremental_search_control, std::shared_ptr<Model> incremental_search_model, std::shared_ptr<View> incremental_search_view) {
    intptr_t row, col, width, height, view_row, view_col;
    control->get_cursor_pos(row, col, Control::REAL);
    view->get_win_prop(width, height);
@@ -16,11 +16,13 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    m_view = view;
    while ( m_run_loop )
    {
-      loop(incremental_search_model, incremental_search_view, incremental_search_control, nullptr);
+      loop(incremental_search_model, incremental_search_view, incremental_search_control);
       //incremental_search_control->loop();
       if ( !m_quitting )
       {
          auto search_string = incremental_search_model->get_row(0)->to_str();
+         shared_ptr<IncrementalSearchMode> ism = dynamic_pointer_cast<IncrementalSearchMode>(control->get_mode(Control::INCREMENTAL_MODE));
+         ism->set_search(search_string);
          intptr_t row, col, width, height, view_row, view_col;
          control->change(m_delta_row, Control::REAL, m_delta_col, Control::REAL, model, view, control);
          control->get_cursor_pos(row, col, Control::REAL);
@@ -47,10 +49,9 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          m_delta_col = 0;
          control->get_view(view_row, view_col);
          control->get_cursor_pos(row, col, Control::VISUAL);
-         update_view(m_model, m_view, control, tabs_mode);
+         update_view(m_model, m_view, control);
       }
       incremental_search_control->set_execute();
-
    }
    m_run_loop = true;
    m_quitting = false;

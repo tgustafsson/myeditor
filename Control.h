@@ -67,6 +67,11 @@ public:
       WITH_INSERTED_VISUAL_LINES
    };
    
+   const static int MAJOR_MODE = 0;
+   const static int INCREMENTAL_MODE = 1;
+   const static int SELECTION_MODE = 2;
+   const static int TABS_MODE = 3;
+
    Control(std::shared_ptr<Model> m);
    virtual ~Control();
    void add_mode(std::shared_ptr<Mode> mode);
@@ -74,6 +79,7 @@ public:
    void set_execute();
    bool get_execute();
    std::vector<std::shared_ptr<Mode>>& get_modes();
+   std::shared_ptr<Mode> get_mode(size_t i); 
    virtual std::tuple<keys, int> get_key() const = 0;
    //virtual void loop() = 0;
    CommandHistory& get_command_history();
