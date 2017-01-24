@@ -9,11 +9,13 @@ IncrementalSearchMode::IncrementalSearchMode(const KeyCords& keys, std::shared_p
 }
 
 void incremental_search_background(shared_ptr<Control> control, vector<shared_ptr<AttributedString>> rows, const wstring& search, AttributedString::color active_color, AttributedString::color matched_color) {
+   _debug << "incremental_search_background: " << static_cast<intptr_t>(active_color) << "\n";
    intptr_t row, col;
    control->get_cursor_pos(row, col, Control::VISUAL);
    intptr_t vrow = 0;
    for ( auto r : rows )
    {
+      _debug << "incremental_search_background: " << r->to_str() << "\n";
       size_t pos = 0;
       while ( pos != wstring::npos )
       {

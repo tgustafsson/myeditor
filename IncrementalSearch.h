@@ -12,8 +12,7 @@ private:
    intptr_t m_start_row, m_start_col, m_start_view_row, m_start_view_col, m_delta_row, m_delta_col;
    bool m_wrap;
    Model::SearchDirection m_dir;
-   std::shared_ptr<Model> m_model;
-   std::shared_ptr<View> m_view;
+   
    bool m_run_loop;
    bool m_quitting;
 public:

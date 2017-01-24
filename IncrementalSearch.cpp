@@ -14,7 +14,6 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    m_start_col = col;
    m_start_view_row = view_row;
    m_start_view_col = view_col;
-   m_view = view;
    while ( m_run_loop )
    {
       loop(incremental_search_model, incremental_search_view, incremental_search_control);
@@ -50,7 +49,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          m_delta_col = 0;
          control->get_view(view_row, view_col);
          control->get_cursor_pos(row, col, Control::VISUAL);
-         update_view(m_model, m_view, control);
+         update_view(model, view, control); 
       }
       incremental_search_control->set_execute();
    }
@@ -62,8 +61,9 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
       view->get_win_prop(width, height);
       auto rows = control->rows(Control::REAL, srow, srow + height);
       shared_ptr<IncrementalSearchMode> ism = dynamic_pointer_cast<IncrementalSearchMode>(control->get_mode(Control::INCREMENTAL_MODE));
-      _debug << "exiting inc search. search_string " << ism->get_search() << "\n";
+      _debug << "exiting inc search. search_string " << ism->get_search() << ", rows.size() " << rows.size() << "\n";
       incremental_search_background(control, rows, ism->get_search(), AttributedString::color::NORMAL, AttributedString::color::NORMAL); 
+      ism->set_search(L"");
    }
    return make_tuple(&my_position_undo, true);
 }
