@@ -39,12 +39,17 @@ vector<intptr_t> get_real_rows_being_visual(shared_ptr<View> view, shared_ptr<Co
 }
 
 void update_view(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
-   shared_ptr<TabsMode> tabsmode = nullptr;
-   if ( control->get_modes().size() > Control::TABS_MODE )
+   shared_ptr<TabsMode> tabsmode = nullptr; 
+   try
    {
       shared_ptr<Mode> t = control->get_mode(Control::TABS_MODE);
-      tabsmode = dynamic_pointer_cast<TabsMode>(t);
+      tabsmode = dynamic_pointer_cast<TabsMode>(t); 
    }
+   catch ( exception e )
+   {
+
+   }
+   
    intptr_t width, height;
    view->get_win_prop(width, height);
    intptr_t view_row, view_col;
@@ -107,18 +112,14 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
 void assign_mode_based_on_extension(shared_ptr<Model> model, shared_ptr<Control> control)
 {
    auto extension = model->get_extension();
-   if ( control->get_modes().size() == 0 )
+   if ( extension == L".cpp" || extension == L".cc" || extension == L".h" || extension == L".hh" )
    {
-      control->get_modes().resize(1);
-   }
-   if ( extension == L".cpp" || extension == L".cc" || extension == L".h" )
-   {
-      control->get_modes()[0] = make_shared<CppMode>(_main_cords, control, &my_insert);
+      control->add_mode(Control::MAJOR_MODE, make_shared<CppMode>(_main_cords, control, &my_insert));
    } else if ( extension == L".tex" )
    {
-      control->get_modes()[0] = make_shared<LatexMode>(_main_cords, control, &my_insert);
+      control->add_mode(Control::MAJOR_MODE, make_shared<LatexMode>(_main_cords, control, &my_insert));
    } else
    {
-      control->get_modes()[0] = make_shared<FundamentalMode>(_main_cords, control, &my_insert);
+      control->add_mode(Control::MAJOR_MODE, make_shared<FundamentalMode>(_main_cords, control, &my_insert));
    }
 }

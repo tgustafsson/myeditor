@@ -55,8 +55,8 @@ void Control::wrap_content() {
 
 }
 
-void Control::add_mode(shared_ptr<Mode> mode) {
-   m_modes.push_back(mode);
+void Control::add_mode(int mode_type, shared_ptr<Mode> mode) {
+   m_modes.insert(pair<int, shared_ptr<Mode>>(mode_type, mode));
 }
 
 void Control::exit() {
@@ -189,13 +189,23 @@ void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t 
    change_view(view_row, view_col, model->number_of_lines());
 }
 
-vector<shared_ptr<Mode>>& Control::get_modes() {
-   return m_modes;
+const vector<shared_ptr<Mode>>& Control::get_modes() {
+   m_ref_to_modes.clear();
+   for (auto m : m_modes)
+   {
+      _debug << "get_modes: " << m.first << "\n";
+      m_ref_to_modes.push_back(m.second);
+   }
+   return m_ref_to_modes;
 }
 
-shared_ptr<Mode> Control::get_mode(size_t i)
+shared_ptr<Mode> Control::get_mode(int mode_type)
 {
-   return m_modes[i];
+   if ( m_modes.find(mode_type) == m_modes.end() )
+   {
+      throw (exception());
+   }
+   return m_modes[mode_type];
 }
 
 void Control::insert_visual_rows(const vector<shared_ptr<AttributedString>>& r, intptr_t start_row) {

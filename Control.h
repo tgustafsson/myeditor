@@ -14,7 +14,8 @@ class Control
 {
 protected:
    std::shared_ptr<Model> m_model;
-   std::vector<std::shared_ptr<Mode>> m_modes;
+   std::vector<std::shared_ptr<Mode>> m_ref_to_modes;
+   std::map<int, std::shared_ptr<Mode>> m_modes;
    std::map<intptr_t, std::shared_ptr<AttributedString>> m_map_real_row_to_visual_contents;
    bool m_execute;
    CommandHistory m_commandhistory;
@@ -68,18 +69,18 @@ public:
    };
    
    const static int MAJOR_MODE = 0;
-   const static int INCREMENTAL_MODE = 1;
-   const static int SELECTION_MODE = 2;
-   const static int TABS_MODE = 3;
+   const static int INCREMENTAL_MODE = 2;
+   const static int SELECTION_MODE = 3;
+   const static int TABS_MODE = 1;
 
    Control(std::shared_ptr<Model> m);
    virtual ~Control();
-   void add_mode(std::shared_ptr<Mode> mode);
+   void add_mode(int mode_type, std::shared_ptr<Mode> mode);
    void exit();
    void set_execute();
    bool get_execute();
-   std::vector<std::shared_ptr<Mode>>& get_modes();
-   std::shared_ptr<Mode> get_mode(size_t i); 
+   const std::vector<std::shared_ptr<Mode>>& get_modes();
+   std::shared_ptr<Mode> get_mode(int mode_type); 
    virtual std::tuple<keys, int> get_key() const = 0;
    //virtual void loop() = 0;
    CommandHistory& get_command_history();
