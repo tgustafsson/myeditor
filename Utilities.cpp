@@ -112,6 +112,7 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
 void assign_mode_based_on_extension(shared_ptr<Model> model, shared_ptr<Control> control)
 {
    auto extension = model->get_extension();
+   _debug << "assign_mode_based_on_extension: " << extension << "\n";
    if ( extension == L".cpp" || extension == L".cc" || extension == L".h" || extension == L".hh" )
    {
       control->add_mode(Control::MAJOR_MODE, make_shared<CppMode>(_main_cords, control, &my_insert));

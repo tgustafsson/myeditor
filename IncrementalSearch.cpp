@@ -61,7 +61,6 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
       view->get_win_prop(width, height);
       auto rows = control->rows(Control::REAL, srow, srow + height);
       shared_ptr<IncrementalSearchMode> ism = dynamic_pointer_cast<IncrementalSearchMode>(control->get_mode(Control::INCREMENTAL_MODE));
-      _debug << "exiting inc search. search_string " << ism->get_search() << ", rows.size() " << rows.size() << "\n";
       incremental_search_background(control, rows, ism->get_search(), AttributedString::color::NORMAL, AttributedString::color::NORMAL); 
       ism->set_search(L"");
    }

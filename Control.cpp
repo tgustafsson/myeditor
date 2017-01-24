@@ -57,6 +57,10 @@ void Control::wrap_content() {
 }
 
 void Control::add_mode(int mode_type, shared_ptr<Mode> mode) {
+   if ( m_modes.find(mode_type) != m_modes.end())
+   {
+      m_modes.erase(mode_type);
+   }
    m_modes.insert(pair<int, shared_ptr<Mode>>(mode_type, mode));
 }
 
@@ -194,7 +198,6 @@ const vector<shared_ptr<Mode>>& Control::get_modes() {
    m_ref_to_modes.clear();
    for (auto m : m_modes)
    {
-      _debug << "get_modes: " << m.first << "\n";
       m_ref_to_modes.push_back(m.second);
    }
    return m_ref_to_modes;

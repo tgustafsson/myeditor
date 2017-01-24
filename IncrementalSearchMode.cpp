@@ -37,8 +37,6 @@ void incremental_search_background(shared_ptr<Control> control, vector<shared_pt
 }
 
 vector<shared_ptr<AttributedString>> IncrementalSearchMode::syntax_highlight(vector<shared_ptr<AttributedString>> rows) {
-   _debug << "IncrementalSearchMode::syntax_highlight. rows.size() = " << rows.size() << "\n";
-   _debug << "m_search = " << m_search << "\n";
    if ( m_search != L"" )
    {
       incremental_search_background(m_control, rows, m_search, AttributedString::color::HILIGHT, AttributedString::color::INC_SEARCH);
