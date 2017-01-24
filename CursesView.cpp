@@ -28,15 +28,6 @@ CursesView::CursesView(intptr_t width, intptr_t height, intptr_t win_x, intptr_t
       if ( has_colors() )
       {
          start_color();
-         /*STRING,
-                 TRIPLE_QUOTE_STRING,
-                 LONG_COMMENT,
-                 LINE_COMMENT,
-                 NORMAL,
-                 KEYWORD,
-                 DATATYPE,
-                 CERROR,
-                 INC_SEARCH*/
          init_pair(1, COLOR_YELLOW, COLOR_BLACK); // keywords
          init_pair(2, COLOR_WHITE, COLOR_BLACK); // normal text
          init_pair(3, COLOR_GREEN, COLOR_BLACK); // comments
@@ -48,6 +39,7 @@ CursesView::CursesView(intptr_t width, intptr_t height, intptr_t win_x, intptr_t
          init_pair(9, COLOR_BLACK, COLOR_WHITE); // inc search
          init_pair(10, COLOR_BLACK, COLOR_YELLOW); // hilight
          init_pair(11, COLOR_BLACK, COLOR_MAGENTA); // tab
+         init_pair(12, COLOR_BLACK, COLOR_WHITE); // tab
          m_color_to_pair[AttributedString::color::KEYWORD] = 1;
          m_color_to_pair[AttributedString::color::NORMAL] = 2;
          m_color_to_pair[AttributedString::color::LINE_COMMENT] = 3;
@@ -59,6 +51,7 @@ CursesView::CursesView(intptr_t width, intptr_t height, intptr_t win_x, intptr_t
          m_color_to_pair[AttributedString::color::INC_SEARCH] = 9;
          m_color_to_pair[AttributedString::color::HILIGHT] = 10; 
          m_color_to_pair[AttributedString::color::TAB] = 11; 
+         m_color_to_pair[AttributedString::color::SELECTION] = 12; 
       }
       raw();
       noecho();

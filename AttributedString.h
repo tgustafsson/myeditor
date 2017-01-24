@@ -20,7 +20,8 @@ public:
       CERROR,
       INC_SEARCH,
       HILIGHT,
-      TAB
+      TAB,
+      SELECTION
    };
 protected:
    std::shared_ptr<std::wstring> m_content;

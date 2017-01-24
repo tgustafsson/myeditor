@@ -16,6 +16,7 @@
 #include "LatexMode.h"
 #include "FundamentalMode.h"
 #include "Utilities.h"
+#include "SelectionMode.h"
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <boost/filesystem/operations.hpp>
@@ -640,6 +641,14 @@ KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::
 
 KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    model->remove_selections();
+   intptr_t width, height, srow, scol;
+   control->get_view(srow, scol);
+   view->get_win_prop(width, height); 
+   auto rows = control->rows(Control::REAL, srow, srow + height);
+   for (auto selection : model->get_selections())
+   {
+      selection_background(model, view, control, selection, rows, AttributedString::color::NORMAL, AttributedString::color::NORMAL);
+   }
    return make_tuple(&my_empty_undo, false);
 }
 

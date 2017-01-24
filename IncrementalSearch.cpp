@@ -1,6 +1,7 @@
 #include "IncrementalSearch.h"
 #include "IncrementalSearchMode.h"
 #include "Utilities.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -55,6 +56,15 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    }
    m_run_loop = true;
    m_quitting = false;
+   {
+      intptr_t width, height, srow, scol;
+      control->get_view(srow, scol);
+      view->get_win_prop(width, height);
+      auto rows = control->rows(Control::REAL, srow, srow + height);
+      shared_ptr<IncrementalSearchMode> ism = dynamic_pointer_cast<IncrementalSearchMode>(control->get_mode(Control::INCREMENTAL_MODE));
+      _debug << "exiting inc search. search_string " << ism->get_search() << "\n";
+      incremental_search_background(control, rows, ism->get_search(), AttributedString::color::NORMAL, AttributedString::color::NORMAL); 
+   }
    return make_tuple(&my_position_undo, true);
 }
 
