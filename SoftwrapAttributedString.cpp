@@ -56,10 +56,10 @@ wchar_t SoftwrapAttributedString::at(size_t pos) const {
    return AttributedString::at(pos + m_offset);
 }
 
-void SoftwrapAttributedString::append(size_t pos, wchar_t wc) {
-   m_as->append(pos + m_offset, wc);
-   m_as->invalidate_syntax_coloring();
-}
+//void SoftwrapAttributedString::append(size_t pos, wchar_t wc) {
+//   m_as->append(pos + m_offset, wc);
+//   m_as->invalidate_syntax_coloring();
+//}
 
 void SoftwrapAttributedString::append(const std::wstring& ws) {
    m_as->insert(m_as->begin() + min(m_width, size()), ws.begin(), ws.end()); //  (m_as->begin() + min(m_width, size()), ws.begin(), ws.end());

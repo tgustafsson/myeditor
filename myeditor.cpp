@@ -11,7 +11,6 @@
 #include "CursesView.h"
 #include "IncrementalSearch.h"
 #include "SelectionMode.h"
-#include "SoftwrapModel.h"
 #include "SoftwrapControl.h"
 #include "DummyView.h"
 #include "Cords.h"

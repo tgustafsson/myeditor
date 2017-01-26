@@ -73,7 +73,12 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search_insert(std::s
    intptr_t start = control->get_col(Control::REAL);
    if ( start >= 0 )
    {
-      while ( static_cast<intptr_t>(s->length()) < start ) s->append(1, L' ');
+      while ( static_cast<intptr_t>(s->length()) < start )
+      {
+         const wstring space
+         {L' '};
+         s->append(space);
+      }
       auto it = s->begin();
       s->insert(it + start, wc);
       control->change(0, Control::REAL, 1, Control::REAL, model, view, control);

@@ -331,12 +331,15 @@ void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View
 void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, wchar_t wch) {
    if ( wch == '\n' )
    {
-
+      control->change_cursor(row, col, Control::REAL); 
+      control->change_view(view_row, view_col, model->number_of_lines()); 
+      my_enter(model, view, control);
    } else
    {
-      control->change_cursor(row, col - 1, Control::REAL);
-      control->change_view(view_row, view_col, model->number_of_lines());
+      control->change_cursor(row, col, Control::REAL); 
+      control->change_view(view_row, view_col, model->number_of_lines()); 
       my_insert(model, view, control, wch);
+      control->change_cursor(row, col, Control::REAL); 
    }
 }
 
@@ -545,7 +548,12 @@ KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared
 KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, wchar_t wc) {
    shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
    intptr_t start = control->get_col(Control::REAL);
-   while ( s->length() < start ) s->append(1, L' ');
+   while ( s->length() < start )
+   {
+      _debug << "my_insert: " << start << ", " << s->length() << "\n";
+      const wstring space{L' '};
+      s->append(space);
+   }
    auto it = s->begin();
    s->insert(it + start, wc);
    control->change(0, Control::REAL, 1, Control::REAL, model, view, control);

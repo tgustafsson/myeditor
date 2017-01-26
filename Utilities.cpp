@@ -102,7 +102,6 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
       auto func = control->get_modes()[0]->get_key();
       auto hist = bind(func, model, view, control);
       auto undo = func(model, view, control);
-      control->wrap_content();
       auto f = get<0>(undo);
       if ( get<1>(undo) ) control->get_command_history().add_command(hist, bind(f, model, view, control, row_copy, col_copy, view_row_copy, view_col_copy));
       if ( _macro.is_recording() ) _macro.add_function(hist);

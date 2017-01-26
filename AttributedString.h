@@ -50,7 +50,7 @@ public:
    virtual iterator begin();
    virtual iterator end();
    virtual wchar_t at(size_t pos) const;
-   virtual void append(size_t pos, wchar_t wc);
+   //virtual void append(size_t pos, wchar_t wc);
    virtual void append(const std::wstring& ws);
    virtual void insert(iterator pos, wchar_t wc);
    virtual void insert(iterator pos, std::wstring::iterator begin, std::wstring::iterator end);
