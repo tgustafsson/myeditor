@@ -31,8 +31,10 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          auto delta_pos = model->search(row, col, view_row, view_col, m_dir, search_string);
          if ( !delta_pos.found && m_wrap )
          {
-            if ( m_dir == Model::SearchDirection::FORWARD ) delta_pos = model->search(0, 0, 0, 0, m_dir, search_string);
-            else if ( m_dir == Model::SearchDirection::BACKWARD )
+            if ( m_dir == Model::SearchDirection::FORWARD )
+            {
+               delta_pos = model->search(0, 0, 0, 0, m_dir, search_string);
+            } else if ( m_dir == Model::SearchDirection::BACKWARD )
             {
 
                //delta_pos = model->search(0, , m_model->number_of_lines(), 0, m_dir, search_string);
@@ -41,7 +43,6 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
             {
                delta_pos.delta_row -= row;
                delta_pos.delta_col -= col;
-               delta_pos.found = true;
             }
          }
          control->change(delta_pos.delta_row, Control::REAL, delta_pos.delta_col, Control::REAL, model, view, control);

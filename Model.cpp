@@ -218,8 +218,7 @@ void Model::load(wstring path) {
 Model::SearchPos Model::search(intptr_t row, intptr_t col, intptr_t view_row, intptr_t view_col, Model::SearchDirection dir, std::wstring search_term) {
    intptr_t i = row + view_row;
    intptr_t c = col + view_col;
-   size_t j = 0;
-   while ( j < number_of_lines() )
+   while ( i < number_of_lines() )
    {
       auto cs = get_row(i);
       auto find_pos = cs->to_str().find(search_term, c);
@@ -231,9 +230,8 @@ Model::SearchPos Model::search(intptr_t row, intptr_t col, intptr_t view_row, in
          sp.found = true;
          return sp;
       }
-      i = (i + 1) % number_of_lines();
+      i++;
       c = 0;
-      j++;
    }
    Model::SearchPos sp;
    sp.delta_row = 0;
