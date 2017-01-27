@@ -9,7 +9,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    intptr_t row, col, width, height, view_row, view_col;
    control->get_cursor_pos(row, col, Control::REAL);
    view->get_win_prop(width, height);
-   control->get_view(view_row, view_col);
+   control->get_view(view_row, view_col, Control::REAL);
    m_start_row = row;
    m_start_col = col;
    m_start_view_row = view_row;
@@ -27,7 +27,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          control->change(m_delta_row, Control::REAL, m_delta_col, Control::REAL, model, view, control);
          control->get_cursor_pos(row, col, Control::REAL);
          view->get_win_prop(width, height);
-         control->get_view(view_row, view_col);
+         control->get_view(view_row, view_col, Control::REAL);
          auto delta_pos = model->search(row, col, view_row, view_col, m_dir, search_string);
          if ( !delta_pos.found && m_wrap )
          {
@@ -48,7 +48,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
          control->change(delta_pos.delta_row, Control::REAL, delta_pos.delta_col, Control::REAL, model, view, control);
          m_delta_row = 0;
          m_delta_col = 0;
-         control->get_view(view_row, view_col);
+         control->get_view(view_row, view_col, Control::REAL);
          control->get_cursor_pos(row, col, Control::VISUAL);
          update_view(model, view, control); 
       }
@@ -58,7 +58,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search(std::shared_p
    m_quitting = false;
    {
       intptr_t width, height, srow, scol;
-      control->get_view(srow, scol);
+      control->get_view(srow, scol, Control::REAL);
       view->get_win_prop(width, height);
       auto rows = control->rows(Control::REAL, srow, srow + height);
       shared_ptr<IncrementalSearchMode> ism = dynamic_pointer_cast<IncrementalSearchMode>(control->get_mode(Control::INCREMENTAL_MODE));
@@ -101,7 +101,7 @@ KeyCord::command_return_t IncrementalSearch::my_incremental_search_again(std::sh
 
 KeyCord::command_return_t IncrementalSearch::my_incremental_search_quit(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    control->change_cursor(m_start_row, m_start_col, Control::REAL);
-   control->change_view(m_start_view_row, m_start_view_col, model->number_of_lines());
+   control->change_view(m_start_view_row, m_start_view_col, model->number_of_lines(), Control::REAL);
    m_quitting = true;
    m_run_loop = false;
    control->exit();

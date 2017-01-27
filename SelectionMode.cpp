@@ -12,7 +12,7 @@ SelectionMode::SelectionMode(const KeyCords& keys, std::shared_ptr<Control> cont
 
 void selection_background(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control, shared_ptr<Selection> selection, vector<shared_ptr<AttributedString>> rows, AttributedString::color active_background, AttributedString::color inactive_background) {
    intptr_t width, height, srow, scol;
-   control->get_view(srow, scol);
+   control->get_view(srow, scol, Control::REAL);
    view->get_win_prop(width, height); 
    Selection::selection_t first;
    Selection::selection_t second;

@@ -97,7 +97,7 @@ void Control::change_cursor(intptr_t row, intptr_t col, Control::change_t t) {
    }
 }
 
-void Control::change_view(intptr_t row, intptr_t col, size_t number_of_lines) {
+void Control::change_view(intptr_t row, intptr_t col, size_t number_of_lines, Control::change_t t) {
    if ( row >= 0 && row < number_of_lines )
    {
       m_view_row = row;
@@ -120,7 +120,7 @@ void Control::get_cursor_pos(intptr_t& row, intptr_t& col, Control::change_t t) 
    }
 }
 
-void Control::get_view(intptr_t& row, intptr_t& col) {
+void Control::get_view(intptr_t& row, intptr_t& col, Control::change_t t) {
    row = m_view_row;
    col = m_view_col;
 }
@@ -145,7 +145,7 @@ void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t 
    intptr_t row, col, width, height, view_row, view_col;
    get_cursor_pos(row, col, row_change);
    view->get_win_prop(width, height);
-   get_view(view_row, view_col);
+   get_view(view_row, view_col, col_change);
    intptr_t new_row = row + delta_row;
    intptr_t new_col = col + delta_col;
    if ( new_row < 0 )
@@ -183,7 +183,7 @@ void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t 
       {
          change_cursor(row, width, row_change);
          view_col += new_col - width;
-         change_view(view_row, view_col, model->number_of_lines());
+         change_view(view_row, view_col, model->number_of_lines(), col_change);
          return;
       } else
       {
@@ -191,7 +191,7 @@ void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t 
       }
    }
    change_cursor(row, col, row_change);
-   change_view(view_row, view_col, model->number_of_lines());
+   change_view(view_row, view_col, model->number_of_lines(), col_change);
 }
 
 const vector<shared_ptr<Mode>>& Control::get_modes() {
@@ -319,12 +319,12 @@ void my_empty_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, sha
 
 void my_position_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col) {
    control->change_cursor(row, col, Control::REAL);
-   control->change_view(view_row, view_col, model->number_of_lines());
+   control->change_view(view_row, view_col, model->number_of_lines(), Control::REAL);
 }
 
 void my_insert_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col) {
    control->change_cursor(row, col, Control::REAL);
-   control->change_view(view_row, view_col, model->number_of_lines());
+   control->change_view(view_row, view_col, model->number_of_lines(), Control::REAL);
    my_delete(model, view, control);
 }
 
@@ -332,12 +332,12 @@ void my_delete_character_undo(std::shared_ptr<Model> model, std::shared_ptr<View
    if ( wch == '\n' )
    {
       control->change_cursor(row, col, Control::REAL); 
-      control->change_view(view_row, view_col, model->number_of_lines()); 
+      control->change_view(view_row, view_col, model->number_of_lines(), Control::REAL); 
       my_enter(model, view, control);
    } else
    {
       control->change_cursor(row, col, Control::REAL); 
-      control->change_view(view_row, view_col, model->number_of_lines()); 
+      control->change_view(view_row, view_col, model->number_of_lines(), Control::REAL); 
       my_insert(model, view, control, wch);
       control->change_cursor(row, col, Control::REAL); 
    }
@@ -538,7 +538,7 @@ KeyCord::command_return_t my_open_file(std::shared_ptr<Model> model, std::shared
    model->load(path);
    control->wrap_content();
    control->change_cursor(0, 0, Control::REAL);
-   control->change_view(0, 0, model->number_of_lines());
+   control->change_view(0, 0, model->number_of_lines(), Control::REAL);
    assign_mode_based_on_extension(model, control);
    file_select_control->set_execute();
    control->get_command_history().clear();
@@ -562,7 +562,7 @@ KeyCord::command_return_t my_insert(std::shared_ptr<Model> model, std::shared_pt
 
 KeyCord::command_return_t my_kut_line(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t view_row, view_col;
-   control->get_view(view_row, view_col);
+   control->get_view(view_row, view_col, Control::REAL);
    static size_t last_key_press = 0;
    shared_ptr<AttributedString> s = control->get_row(Control::REAL, 0);
    if ( control->get_col(Control::REAL) < s->length() )
@@ -653,7 +653,7 @@ KeyCord::command_return_t my_start_selection(std::shared_ptr<Model> model, std::
 KeyCord::command_return_t my_ctrl_g(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control) {
    model->remove_selections();
    intptr_t width, height, srow, scol;
-   control->get_view(srow, scol);
+   control->get_view(srow, scol, Control::REAL);
    view->get_win_prop(width, height); 
    auto rows = control->rows(Control::REAL, srow, srow + height);
    for (auto selection : model->get_selections())
@@ -794,7 +794,7 @@ KeyCord::command_return_t my_cut_selection(std::shared_ptr<Model> model, std::sh
 
 void my_cut_undo(std::shared_ptr<Model> model, std::shared_ptr<View> view, shared_ptr<Control> control, size_t row, size_t col, size_t view_row, size_t view_col, vector<wstring> lines, intptr_t r, intptr_t c) {
    control->change_cursor(r, c, Control::REAL);
-   control->change_view(view_row, view_col, model->number_of_lines());
+   control->change_view(view_row, view_col, model->number_of_lines(), Control::REAL);
    for ( size_t i = r; i < r + lines.size(); i++ )
    {
       auto line = model->get_row(i);

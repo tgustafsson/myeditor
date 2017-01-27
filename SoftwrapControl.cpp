@@ -9,10 +9,12 @@ SoftwrapControl::SoftwrapControl(std::shared_ptr<Model> m, std::shared_ptr<View>
    : CursesControl(m) {
    m_visual_row = 0;
    m_visual_col = 0;
+   m_visual_view_row = 0;
    intptr_t temp1, temp2;
    v->get_win_prop(temp1, temp2);
    m_width = temp1;
    m_width -= 2;
+   m_height = temp2;
    wrap_content();
 }
 
@@ -20,7 +22,7 @@ shared_ptr<AttributedString> SoftwrapControl::get_row(change_t t, intptr_t delta
    if ( t == Control::REAL ) return Control::get_row(t, delta);
    else if ( t == Control::VISUAL )
    {
-      return m_softwrap[m_visual_row + m_view_row];
+      return m_softwrap[m_visual_row + m_visual_view_row];
    }
    return make_shared<AttributedString>(wstring());
 }
@@ -65,18 +67,53 @@ void SoftwrapControl::change_cursor(intptr_t row, intptr_t col, change_t t) {
    }
 }
 
-void SoftwrapControl::change_view(intptr_t row, intptr_t col, size_t number_of_lines) {
-   if ( col >= 0 )
+void SoftwrapControl::change_view(intptr_t row, intptr_t col, size_t number_of_lines, Control::change_t t) {
+   if ( t == Control::change_t::REAL )
    {
-      m_real_col += col;
-      m_visual_row = m_map_real_to_soft[m_real_row] + (m_view_col + m_real_col) / m_width;
-      m_visual_col = m_real_col % m_width;
+      if ( col >= 0 )
+      {
+         m_real_col += col;
+         m_visual_row = m_map_real_to_soft[m_real_row] + (m_view_col + m_real_col) / m_width;
+         m_visual_col = m_real_col % m_width;
+      }
+      if ( row >= 0 && row < static_cast<intptr_t>(number_of_lines) )
+      {
+         m_visual_view_row = std::max<intptr_t>(m_map_real_to_soft[row], m_visual_row - m_height);
+         m_view_row = row;
+      }
+      return;
    }
-   if ( row >= 0 && row < static_cast<intptr_t>(number_of_lines) )
+   else if ( t == Control::change_t::VISUAL )
    {
-      m_view_row = row;
-   }
+      m_visual_view_row = row;
+      if ( m_map_soft_to_real.find(m_visual_view_row) != m_map_soft_to_real.end() )
+      {
+         m_view_row = get<0>(m_map_soft_to_real[m_visual_view_row]);
+      }
+      else
+      {
+         m_view_row = 0;
+      }
+      m_view_col = 0;
+      return;
 
+   }
+   throw (exception());
+}
+
+void SoftwrapControl::get_view(intptr_t& row, intptr_t& col, Control::change_t t) {
+   if ( t == Control::change_t::REAL )
+   {
+      Control::get_view(row, col, t);
+      return;
+   }
+   else if ( t == Control::change_t::VISUAL )
+   {
+      row = m_visual_view_row;
+      col = m_view_col;
+      return;
+   }
+   throw (exception());
 }
 
 void SoftwrapControl::get_cursor_pos(intptr_t& row, intptr_t& col, change_t t) {
@@ -97,7 +134,7 @@ size_t SoftwrapControl::get_row_no(Control::change_t t) {
       return Control::get_row_no(t);
    } else if ( t == Control::VISUAL )
    {
-      return m_visual_row + m_view_row;
+      return m_visual_row + m_visual_view_row;
    }
    throw(exception());
 }

@@ -87,9 +87,9 @@ public:
    virtual void wrap_content();
    virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view, std::shared_ptr<Control> control);
    virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
-   virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines);
+   virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines, Control::change_t t);
    virtual void get_cursor_pos(intptr_t& row, intptr_t& col, change_t t);
-   virtual void get_view(intptr_t& row, intptr_t& col);
+   virtual void get_view(intptr_t& row, intptr_t& col, Control::change_t t);
    virtual std::shared_ptr<AttributedString> get_row(change_t t, intptr_t delta);
    virtual size_t get_row_no(change_t t);
    virtual size_t get_col(change_t t);

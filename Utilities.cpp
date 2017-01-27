@@ -14,8 +14,8 @@ vector<intptr_t> get_real_rows_being_visual(shared_ptr<View> view, shared_ptr<Co
 {
    intptr_t width, height;
    view->get_win_prop(width, height); 
-   intptr_t view_row, view_col;
-   control->get_view(view_row, view_col); 
+// intptr_t view_row, view_col;
+// control->get_view(view_row, view_col, Control::REAL);
    intptr_t row_copy_, col_copy_;
    control->get_cursor_pos(row_copy_, col_copy_, Control::change_t::REAL); 
    vector<intptr_t> real_rows_being_visual;
@@ -53,7 +53,7 @@ void update_view(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Cont
    intptr_t width, height;
    view->get_win_prop(width, height);
    intptr_t view_row, view_col;
-   control->get_view(view_row, view_col);
+   control->get_view(view_row, view_col, Control::VISUAL);
 
    auto real_rows_being_visual = get_real_rows_being_visual(view, control);
 
@@ -94,7 +94,7 @@ void loop(shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> co
    while ( control->get_execute() )
    {
       intptr_t view_row, view_col;
-      control->get_view(view_row, view_col); 
+      control->get_view(view_row, view_col, Control::REAL); 
       intptr_t row, col;
       control->get_cursor_pos(row, col, Control::REAL);
       intptr_t row_copy = row, col_copy = col, view_row_copy = view_row, view_col_copy = view_col; 

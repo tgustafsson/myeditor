@@ -15,7 +15,7 @@ vector<shared_ptr<AttributedString>> TabsMode::syntax_highlight(vector<shared_pt
    intptr_t new_col = 0;
    m_control->get_cursor_pos(row_nr, col, Control::change_t::REAL);
    intptr_t view_row, view_col;
-   m_control->get_view(view_row, view_col);
+   m_control->get_view(view_row, view_col, Control::REAL);
    vector<shared_ptr<AttributedString>> ret;
    intptr_t r = 0;
    for (auto row : rows)
