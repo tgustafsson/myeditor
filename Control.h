@@ -96,6 +96,7 @@ public:
    virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, intptr_t start_row, intptr_t end_row);
    virtual void convert_to(Control::change_t from, size_t row, size_t col, Control::change_t to, intptr_t& _row, intptr_t& _col);
    virtual void insert_visual_rows(const std::vector<std::shared_ptr<AttributedString>>&, intptr_t start_row); 
+   virtual std::vector<intptr_t> get_real_rows_being_visual(std::shared_ptr<View> view); 
 };
 
 extern size_t _number_key_presses;

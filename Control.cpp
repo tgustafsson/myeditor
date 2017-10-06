@@ -141,6 +141,17 @@ vector<shared_ptr<AttributedString>> Control::rows(change_t t, intptr_t start_ro
    return rows;
 }
 
+vector<intptr_t> Control::get_real_rows_being_visual(shared_ptr<View> view) {
+   vector<intptr_t> ret;
+   intptr_t width, height;
+   view->get_win_prop(width, height);
+   for ( intptr_t i = 0; i < m_view_row + height && i < m_model->number_of_lines(); i++ )
+   {
+      ret.push_back(i);
+   }
+   return ret;
+}
+
 void Control::change(intptr_t delta_row, Control::change_t row_change, intptr_t delta_col, Control::change_t col_change, shared_ptr<Model> model, shared_ptr<View> view, shared_ptr<Control> control) {
    intptr_t row, col, width, height, view_row, view_col;
    get_cursor_pos(row, col, row_change);

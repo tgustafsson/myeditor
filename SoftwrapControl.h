@@ -17,11 +17,11 @@ private:
    size_t m_visual_view_row;
    size_t m_width;
    size_t m_height;
-
+   size_t m_view_row_add;
 public:
    SoftwrapControl(std::shared_ptr<Model> m, std::shared_ptr<View> v);
    virtual void wrap_content();
-   //virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view);
+// virtual void change(intptr_t delta_row, change_t row_change, intptr_t delta_col, change_t col_change, std::shared_ptr<Model> model, std::shared_ptr<View> view);
    virtual void change_cursor(intptr_t row, intptr_t col, change_t t);
    virtual void change_view(intptr_t row, intptr_t col, size_t number_of_lines, Control::change_t t);
    virtual void get_cursor_pos(intptr_t& row, intptr_t& col, change_t t);
@@ -31,4 +31,5 @@ public:
    virtual size_t get_col(change_t t);
    virtual std::vector<std::shared_ptr<AttributedString>> rows(change_t t, intptr_t start_row, intptr_t end_row);
    //virtual void loop();
+   virtual std::vector<intptr_t> get_real_rows_being_visual(std::shared_ptr<View> view); 
 };
